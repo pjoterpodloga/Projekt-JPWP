@@ -1,7 +1,6 @@
 package src;
 
 import java.util.concurrent.Semaphore;
-import java.lang.Math;
 
 public class Timer extends Thread{
 
@@ -9,7 +8,6 @@ public class Timer extends Thread{
     private long tickCounter = 0;
     private long lastTicks = 0;
     private boolean running = false;
-    private boolean stop = true;
 
     //// Public fields ////
     public final long NS_PER_TICK = 1_00_000;
@@ -31,9 +29,14 @@ public class Timer extends Thread{
         return elapsedTicks;
     }
 
-    public long getElapsedTime()
+    public double getElapsedTime()
     {
-        return getElapsedTicks() * NS_PER_TICK;
+        return (double)(getElapsedTicks() * NS_PER_TICK);
+    }
+
+    public double getElapsedTime_ms()
+    {
+        return (getElapsedTime() / 1_000_000.);
     }
     public boolean isRunning()
     {
@@ -62,7 +65,7 @@ public class Timer extends Thread{
         running = true;
 
         long currentTime = System.nanoTime();
-        long lastTime = 0;
+        long lastTime;
         double deltaTime;
         double deltaTimeFix = 0;
 
@@ -71,7 +74,7 @@ public class Timer extends Thread{
             lastTime = currentTime; // Save last got time
             currentTime = System.nanoTime(); // Get current time
 
-            deltaTimeFix = (double)(currentTime - lastTime) / NS_PER_TICK + deltaTimeFix; // Calculate delta of time
+            deltaTimeFix = ((double) (currentTime - lastTime) / NS_PER_TICK) + deltaTimeFix; // Calculate delta of time
             deltaTime = Math.floor(deltaTimeFix);
             deltaTimeFix = deltaTimeFix - deltaTime;
 
