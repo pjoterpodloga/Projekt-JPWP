@@ -2,6 +2,7 @@ package src;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Game
 {
@@ -17,7 +18,8 @@ public class Game
 
     //// Private fields ////
     private Window frame;
-    private Canvas canvas;
+    private JPanel canvas;
+    private BufferedImage buffor;
     private Timer timer;
     private Equation equation;
     private Graph graph;
@@ -66,9 +68,10 @@ public class Game
 
         frame.setLayout(null);
 
-        canvas = new Canvas();
-        canvas.setBackground(new Color(235, 230, 210));
+        canvas = new JPanel();
         canvas.setSize(1000, 1000);
+
+        buffor = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         frame.getContentPane().add(canvas);
 
@@ -93,8 +96,8 @@ public class Game
         graph = new Graph(new Point(500, 500), 50, 50);
 
         equation = Equation.createEquation(EquType.SIN);
-        equation.setB(canvas.getWidth() / graph.getxGridInterval() / 2);
-        equation.resize(canvas.getWidth() / graph.getxGridInterval() * 100);
+        equation.setB(canvas.getWidth() / graph.getxGridInterval() / 4);
+        equation.resize(canvas.getWidth() / graph.getxGridInterval() * 10);
 
         equation.setInterval(-(double)graph.getxCenter()/(double)canvas.getWidth(), 1.-(double)graph.getxCenter()/(double)canvas.getWidth());
         equation.calculateValues();
@@ -105,33 +108,48 @@ public class Game
         double elapsedTime;
         double repaintTime = 0;
 
-        final double repaintTimeInterval = 0.016;
+        final double repaintTimeInterval = 0.2;
 
-        Graphics2D g = (Graphics2D)canvas.getGraphics();
+        Graphics2D g_canvas = (Graphics2D)canvas.getGraphics();
+        Graphics2D g_buffor = buffor.createGraphics();
+
+        //g_buffor.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         double scale = 0;
 
         double scaleTime = 0;
-        final double scaleTimeInterval = 0.5;
+        final double scaleTimeInterval = 0.02;
 
         while(running)
         {
-            try { Thread.sleep(2); }
-            catch (Exception e) { e.printStackTrace(); }
 
             elapsedTime = timer.getElapsedTime_ms() / 1_000;
+
+            scaleTime += elapsedTime;
+            if (scaleTime >= scaleTimeInterval)
+            {
+                scaleTime = 0;
+                scale += 0.01;
+                equation.setB(scale);
+            }
 
             repaintTime += elapsedTime;
             if (repaintTime >= repaintTimeInterval)
             {
                 repaintTime = 0;
-                paint(g);
+
+                frame(g_buffor);
+
+                if (buffor != null)
+                {
+                    paint(g_canvas);
+                }
             }
 
         }
     }
 
-    private void paint(Graphics2D g)
+    private void frame(Graphics2D g)
     {
         int W = canvas.getHeight();
         int H = canvas.getHeight();
@@ -141,8 +159,10 @@ public class Game
 
         g.clearRect(0, 0, W, H);
 
+        g.setBackground(new Color(235, 230, 210));
+
         g.setColor(Color.black);
-        g.setStroke(new BasicStroke(4));
+        g.setStroke(new BasicStroke(3));
         g.drawLine(0, yCenter, W, yCenter); // Drawing X-Axis
         g.drawLine(xCenter, 0, xCenter, H); // Drawing Y-Axis
 
@@ -162,6 +182,7 @@ public class Game
         g.fillOval(xCenter - 7, yCenter -7, 14, 14);
 
         g.setColor(Color.BLUE);
+        g.setStroke(new BasicStroke(2));
 
         int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
@@ -179,8 +200,11 @@ public class Game
             y2 = y1;
         }
 
+    }
 
-
+    private void paint(Graphics2D g)
+    {
+        g.drawImage(buffor, 0, 0, canvas);
     }
 
     //// Public methods ////
