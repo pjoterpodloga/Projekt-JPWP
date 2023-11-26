@@ -1,96 +1,83 @@
 package src;
 
-import java.util.concurrent.Semaphore;
-
-public class Timer extends Thread{
+public class Timer {
 
     //// Private fields ////
     private long tickCounter = 0;
-    private long lastTicks = 0;
-    private boolean running = false;
+    private long elapsedTicks;
+    private long elapsedTime_ns;
 
     //// Public fields ////
-    public final long NS_PER_TICK = 1_00_000;
-    public Semaphore mutex = new Semaphore(1);
+    private long ticks;
+    private long nsPerTicks;
+    private long currentTime = 0;
+    private long lastTime = 0;
+    private long totalElapsedTime = 0;
+
     //// Private methods ////
 
     //// Public methods ////
+    public Timer()
+    {
+        ticks = 64;
+        this.nsPerTicks = 1_000_000_000L / ticks;
+    }
 
+    public Timer(long ticks)
+    {
+        if (ticks > 128)
+        {
+            ticks = 128;
+        }
+
+        this.ticks = ticks;
+        this.nsPerTicks = 1_000_000_000L / this.ticks;
+    }
     public long getElapsedTicks()
     {
-        try { mutex.acquire(); }
-        catch (Exception e) { e.printStackTrace(); }
-
-        long elapsedTicks = tickCounter - lastTicks;
-        lastTicks = tickCounter;
-
-        mutex.release();
+        elapsedTicks =  getElapsedTime_ns() / nsPerTicks;
+        tickCounter += elapsedTicks;
 
         return elapsedTicks;
     }
-
-    public double getElapsedTime()
+    public long getElapsedTime_ns()
     {
-        return (double)(getElapsedTicks() * NS_PER_TICK);
-    }
+        currentTime = System.nanoTime();
+        elapsedTime_ns = (currentTime - lastTime);
+        lastTime = currentTime;
 
+        totalElapsedTime += elapsedTime_ns;
+
+        return elapsedTime_ns;
+    }
+    public double getElapsedTime_us()
+    {
+        getElapsedTicks();
+        return (double)elapsedTime_ns / 1_000.;
+    }
     public double getElapsedTime_ms()
     {
-        return (getElapsedTime() / 1_000_000.);
+        getElapsedTicks();
+        return (double)elapsedTime_ns / 1_000_000.;
     }
-    public boolean isRunning()
+    public double getTotalElapsedTime_ns()
     {
-        try { mutex.acquire(); }
-        catch (Exception e) { e.printStackTrace(); }
-
-        boolean returnValue = running;
-
-        mutex.release();
-
-        return returnValue;
+        getElapsedTicks();
+        return (double)totalElapsedTime;
     }
-
-    public void close()
+    public double getTotalElapsedTime_us()
     {
-        try { mutex.acquire(); }
-        catch (Exception e) { e.printStackTrace(); }
-
-        running = false;
-
-        mutex.release();
+        getElapsedTicks();
+        return (double)totalElapsedTime / 1_000.;
     }
-
-    public void run()
+    public double getTotalElapsedTime_ms()
     {
-        running = true;
-
-        long currentTime = System.nanoTime();
-        long lastTime;
-        double deltaTime;
-        double deltaTimeFix = 0;
-
-        while (true)
-        {
-            lastTime = currentTime; // Save last got time
-            currentTime = System.nanoTime(); // Get current time
-
-            deltaTimeFix = ((double) (currentTime - lastTime) / NS_PER_TICK) + deltaTimeFix; // Calculate delta of time
-            deltaTime = Math.floor(deltaTimeFix);
-            deltaTimeFix = deltaTimeFix - deltaTime;
-
-            try { Thread.sleep(1); mutex.acquire(); }
-            catch (Exception e) { e.printStackTrace(); }
-
-            tickCounter += deltaTime;
-
-            if (!running)
-            {
-                break;
-            }
-
-            mutex.release();
-        }
-
+        getElapsedTicks();
+        return (double)totalElapsedTime / 1_000_000.;
+    }
+    public int getTicks()
+    {
+        return (int) ticks;
     }
 
 }

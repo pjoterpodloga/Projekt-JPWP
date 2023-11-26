@@ -2,43 +2,19 @@ package src;
 
 public abstract class Equation {
     public static Equation createEquation(EquType type) {
-        Equation returnEqu;
-
-        switch (type) {
-            case POLY1:
-                returnEqu = null;
-                break;
-            case POLY2:
-                returnEqu = null;
-                break;
-            case POLY3:
-                returnEqu = null;
-                break;
-            case POLY4:
-                returnEqu = null;
-                break;
-            case POLY5:
-                returnEqu = null;
-                break;
-            case POLY6:
-                returnEqu = null;
-                break;
-            case SIN:
-                returnEqu = new SinEqu();
-                break;
-            case TAN:
-                returnEqu = null;
-                break;
-            case EXP:
-                returnEqu = null;
-                break;
-            case LOG:
-                returnEqu = null;
-                break;
-            default:
-                returnEqu = null;
-                break;
-        }
+        Equation returnEqu = switch (type) {
+            case POLY1 -> null;
+            case POLY2 -> null;
+            case POLY3 -> null;
+            case POLY4 -> null;
+            case POLY5 -> null;
+            case POLY6 -> null;
+            case SIN -> new SinEqu();
+            case TAN -> null;
+            case EXP -> null;
+            case LOG -> null;
+            default -> null;
+        };
 
         return returnEqu;
     }

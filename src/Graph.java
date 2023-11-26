@@ -1,56 +1,53 @@
 package src;
 
-import java.awt.*;
-
 public class Graph {
 
-    Graph(Point c, int x, int y)
+    Graph(double dx, double dy, double griddx, double griddy)
     {
-        this.center = c;
-        this.xGridInterval = x;
-        this.yGridInterval = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.xGridInterval = griddx;
+        this.yGridInterval = griddy;
     }
 
-    private Point center;
-    private int xGridInterval;
-    private int yGridInterval;
+    private double dx;
+    private double dy;
+    private double xGridInterval;
+    private double yGridInterval;
 
     //// Setters ////
-    public void setCenter(int x, int y)
+    public void setdx(double dx)
     {
-        center = new Point(x, y);
+        this.dx = dx;
     }
-    public void setCenter(Point c)
+    public void setdy(double dy)
     {
-        center = c;
+        this.dy = dy;
     }
-    public void setxGridInterval(int xGridInt)
+    public void setxGridInterval(double xGridInt)
     {
         xGridInterval = xGridInt;
     }
-    public void setyGridInterval(int yGridInt)
+    public void setyGridInterval(double yGridInt)
     {
         yGridInterval = yGridInt;
     }
 
     //// Getters ////
-    public Point getCenter()
+
+    public double getdx()
     {
-        return center;
+        return dx;
     }
-    public int getxCenter()
+    public double getdy()
     {
-        return center.x;
+        return dy;
     }
-    public int getyCenter()
-    {
-        return center.y;
-    }
-    public int getxGridInterval()
+    public double getxGridInterval()
     {
         return xGridInterval;
     }
-    public int getyGridInterval()
+    public double getyGridInterval()
     {
         return yGridInterval;
     }
