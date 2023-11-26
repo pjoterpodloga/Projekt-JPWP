@@ -10,7 +10,6 @@ public class Timer {
     //// Public fields ////
     private long ticks;
     private long nsPerTicks;
-    private long currentTime = 0;
     private long lastTime = 0;
     private long totalElapsedTime = 0;
 
@@ -42,7 +41,7 @@ public class Timer {
     }
     public long getElapsedTime_ns()
     {
-        currentTime = System.nanoTime();
+        long currentTime = System.nanoTime();
         elapsedTime_ns = (currentTime - lastTime);
         lastTime = currentTime;
 

@@ -49,7 +49,7 @@ public class GamePanel extends JPanel
             if (totalElapsedTime_ms >= fpsNewInterval)
             {
                 fpsNewInterval = totalElapsedTime_ms + fpsInterval;
-                framesPerSecond = (double)drawCount / (double)fpsInterval * 1_000.;
+                framesPerSecond = (double)drawCount / fpsInterval * 1_000.;
                 drawCount = 0;
             }
 

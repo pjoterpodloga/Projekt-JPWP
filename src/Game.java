@@ -40,6 +40,7 @@ public class Game extends JFrame{
     private void initWindow()
     {
         this.setSize(WIDTH, HEIGHT);
+        this.setTitle(NAME);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
