@@ -47,7 +47,7 @@ public class SinEqu extends Equation {
             gridFactor = 100.;
         }
 
-        int optimalSize = (int)(200 * gridFactor * interval);
+        int optimalSize = (int)(400 * gridFactor * interval);
         if (Math.abs(optimalSize - this.optimalSize) > epsilon)
         {
             this.optimalSize = optimalSize;

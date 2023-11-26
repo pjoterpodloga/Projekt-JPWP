@@ -14,12 +14,14 @@ public class GamePanel extends JPanel
     private Timer timer;
     private Equation equation;
     private Graph graph;
+    private Ball ball;
     private double framesPerSecond = 0;
     private boolean running = false;
 
     public void gameLoop()
     {
         double totalElapsedTime_ms;
+        double dt;
 
         double repaintInterval = 1000. / maxFPS;
         double repaintNewInterval = repaintInterval;
@@ -29,14 +31,17 @@ public class GamePanel extends JPanel
 
         int drawCount = 0;
 
-        double scaleC = 0.1;
+        double scaleC = 0.0;
 
-        timer.getElapsedTicks();
+        double lastElapsedTime_ms = timer.getTotalElapsedTime_ms();
         while(running)
         {
             totalElapsedTime_ms = timer.getTotalElapsedTime_ms();
+            dt = (totalElapsedTime_ms - lastElapsedTime_ms)/ 1_000.;
+            lastElapsedTime_ms = totalElapsedTime_ms;
 
-            update();
+            update(dt);
+
 
             if (totalElapsedTime_ms >= repaintNewInterval)
             {
@@ -44,7 +49,7 @@ public class GamePanel extends JPanel
                 repaint();
                 drawCount += 1;
 
-                scaleC += 0.01;
+                //scaleC += 0.01;
                 equation.setC(scaleC);
             }
 
@@ -54,16 +59,17 @@ public class GamePanel extends JPanel
                 framesPerSecond = (double)drawCount / fpsInterval * 1_000.;
                 drawCount = 0;
             }
-
         }
 
         clean();
 
     }
-    public void update()
+    public void update(double dt)
     {
         equation.optimizeSize();
         equation.calculateValues();
+
+        ball.calculateDisplacement(dt);
     }
     public void initPanel()
     {
@@ -73,7 +79,7 @@ public class GamePanel extends JPanel
 
     public void initPeripherals()
     {
-        graph = new Graph(-0.1, -0.1, 0.05, 0.1);
+        graph = new Graph(-0.1, -0.1, 0.1, 0.1);
 
         this.width = this.getWidth();
         this.height = this.getHeight();
@@ -87,6 +93,11 @@ public class GamePanel extends JPanel
         equation.optimizeSize();
 
         timer = new Timer((int)maxFPS);
+
+        ball = new Ball(10);
+        ball.setyAcceleration(-9.81);
+        ball.setxPos(4);
+        ball.setyPos(4);
     }
 
     private int width;
@@ -169,7 +180,12 @@ public class GamePanel extends JPanel
             y2 = y1;
         }
 
+
+        int d = ball.getRadius() * 2;
+        int x = ball.getxPos() * xGridInterval, y = ball.getyPos();
+
         g2.setColor(ballColor);
+        g2.fillOval(x - d/2, y - d/2, d, d);
 
         g2.setColor(debugColor);
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
