@@ -8,13 +8,13 @@ public class GamePanel extends JPanel
 
     public final int plotWidth = 1000;
     public final int plotHeight = 1000;
+    private final double maxFPS = 60;
 
     //// Private fields ////
     private Timer timer;
     private Equation equation;
     private Graph graph;
     private double framesPerSecond = 0;
-    private final double maxFPS = 60;
     private boolean running = false;
 
     public void gameLoop()
@@ -29,7 +29,7 @@ public class GamePanel extends JPanel
 
         int drawCount = 0;
 
-        double scaleB = 0.1;
+        double scaleC = 0.1;
 
         timer.getElapsedTicks();
         while(running)
@@ -44,9 +44,8 @@ public class GamePanel extends JPanel
                 repaint();
                 drawCount += 1;
 
-                scaleB += 0.1;
-                equation.setA(scaleB);
-                equation.setB(scaleB);
+                scaleC += 0.01;
+                equation.setC(scaleC);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -63,7 +62,7 @@ public class GamePanel extends JPanel
     }
     public void update()
     {
-        equation.optimazeSize();
+        equation.optimizeSize();
         equation.calculateValues();
     }
     public void initPanel()
@@ -74,7 +73,7 @@ public class GamePanel extends JPanel
 
     public void initPeripherals()
     {
-        graph = new Graph(0., 0., 0.1, 0.1);
+        graph = new Graph(-0.1, -0.1, 0.05, 0.1);
 
         this.width = this.getWidth();
         this.height = this.getHeight();
@@ -85,9 +84,9 @@ public class GamePanel extends JPanel
 
         equation = Equation.createEquation(EquType.SIN);
         equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
-        equation.optimazeSize();
+        equation.optimizeSize();
 
-        timer = new Timer(512);
+        timer = new Timer((int)maxFPS);
     }
 
     private int width;
@@ -118,9 +117,12 @@ public class GamePanel extends JPanel
     @Override
     public void paintComponent(Graphics g)
     {
+
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2.setColor(plotColor);
         g2.fillRect(0, 0, plotWidth, plotHeight);
@@ -141,7 +143,7 @@ public class GamePanel extends JPanel
             g2.drawString(""+ j++, i + 4, yCenter + 14);
         }
 
-        for(int i = yCenter % yGridInterval, j = -yCenter / xGridInterval; i <= width; i += yGridInterval)
+        for(int i = yCenter % yGridInterval, j = -yCenter / yGridInterval; i <= width; i += yGridInterval)
         {
             g2.drawLine(0, i, width, i);
             if (j == 0) { j++; continue;}

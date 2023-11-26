@@ -43,7 +43,7 @@ public abstract class Equation {
 
         update = true;
     }
-    public void optimazeSize()
+    public void optimizeSize()
     {
 
     }

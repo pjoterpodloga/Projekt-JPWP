@@ -37,7 +37,7 @@ public class SinEqu extends Equation {
     }
 
     @Override
-    public void optimazeSize()
+    public void optimizeSize()
     {
         double interval = this.stop - this.start;
         double gridFactor = Math.abs(this.A * this.B);
