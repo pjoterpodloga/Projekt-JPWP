@@ -15,13 +15,10 @@ public class GamePanel extends JPanel
     private Graph graph;
     private double framesPerSecond = 0;
     private final double maxFPS = 60;
-
     private boolean running = false;
 
     public void gameLoop()
     {
-        timer = new Timer(512);
-
         double totalElapsedTime_ms;
 
         double repaintInterval = 1000. / maxFPS;
@@ -31,6 +28,8 @@ public class GamePanel extends JPanel
         double fpsNewInterval = fpsInterval;
 
         int drawCount = 0;
+
+        double scaleB = 0.1;
 
         timer.getElapsedTicks();
         while(running)
@@ -44,6 +43,10 @@ public class GamePanel extends JPanel
                 repaintNewInterval = totalElapsedTime_ms + repaintInterval;
                 repaint();
                 drawCount += 1;
+
+                scaleB += 0.1;
+                equation.setA(scaleB);
+                equation.setB(scaleB);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -60,7 +63,8 @@ public class GamePanel extends JPanel
     }
     public void update()
     {
-
+        equation.optimazeSize();
+        equation.calculateValues();
     }
     public void initPanel()
     {
@@ -68,12 +72,35 @@ public class GamePanel extends JPanel
         this.setLocation(0, 0);
     }
 
-    public void run() {
+    public void initPeripherals()
+    {
+        graph = new Graph(0., 0., 0.1, 0.1);
 
-        graph = new Graph(0, 0, 0.1, 0.1);
+        this.width = this.getWidth();
+        this.height = this.getHeight();
+        this.xCenter = (int)(width * (0.5 + graph.getdx()));
+        this.yCenter = (int)(height * (1. - (0.5 + graph.getdy())));
+        this.xGridInterval = (int)(width * graph.getxGridInterval());
+        this.yGridInterval = (int)(height * graph.getyGridInterval());
+
         equation = Equation.createEquation(EquType.SIN);
+        equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
+        equation.optimazeSize();
 
+        timer = new Timer(512);
+    }
+
+    private int width;
+    private int height;
+    private int xCenter;
+    private int yCenter;
+    private int xGridInterval;
+    private int yGridInterval;
+
+    public void run()
+    {
         initPanel();
+        initPeripherals();
 
         running = true;
 
@@ -99,10 +126,46 @@ public class GamePanel extends JPanel
         g2.fillRect(0, 0, plotWidth, plotHeight);
 
         g2.setColor(mainGridColor);
+        g2.setStroke(new BasicStroke(3));
+        g.drawLine(0, yCenter, width, yCenter);     // x-axis
+        g.drawLine(xCenter, 0, xCenter, height);    // y-axis
+        int centerSize = 12;
+        g.fillOval(xCenter - centerSize /2, yCenter - centerSize /2, centerSize, centerSize);
 
         g2.setColor(subGridColor);
+        g2.setStroke(new BasicStroke(2));
+
+        for(int i = xCenter % xGridInterval, j = -xCenter / xGridInterval; i <= width; i += xGridInterval)
+        {
+            g2.drawLine(i, 0, i, height);
+            g2.drawString(""+ j++, i + 4, yCenter + 14);
+        }
+
+        for(int i = yCenter % yGridInterval, j = -yCenter / xGridInterval; i <= width; i += yGridInterval)
+        {
+            g2.drawLine(0, i, width, i);
+            if (j == 0) { j++; continue;}
+            g2.drawString(""+ j++, xCenter + 10, i - 4);
+        }
 
         g2.setColor(functionColor);
+        g2.setStroke(new BasicStroke(2));
+
+        int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+
+        for (int i = 0; i < equation.getLength(); i += 1)
+        {
+            x1 = (int)(equation.getX(i) * xGridInterval) + xCenter;
+            y1 = (int)(yCenter-equation.getY(i)*yGridInterval);
+
+            if (i != 0)
+            {
+                g2.drawLine(x1, y1, x2, y2);
+            }
+
+            x2 = x1;
+            y2 = y1;
+        }
 
         g2.setColor(ballColor);
 
@@ -110,7 +173,6 @@ public class GamePanel extends JPanel
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
 
         g.dispose();
-
     }
 
     //// Private methods ////
@@ -119,56 +181,5 @@ public class GamePanel extends JPanel
     {
 
     }
-
-    /*
-    private void paint(Graphics2D g)
-    {
-        int xCenter = graph.getxCenter()*bufforScale;
-        int yCenter = H - graph.getyCenter()*bufforScale;
-
-        int xInterval = graph.getxGridInterval()*bufforScale;
-        int yInterval = graph.getyGridInterval()*bufforScale;
-
-        g.setColor(Color.black);
-        g.setStroke(new BasicStroke(3*bufforScale));
-        g.drawLine(0, yCenter, W, yCenter); // Drawing X-Axis
-        g.drawLine(xCenter, 0, xCenter, H); // Drawing Y-Axis
-
-        g.setColor(Color.darkGray);
-        g.setStroke(new BasicStroke(bufforScale));
-
-        for (int i = xCenter % xInterval; i < W; i += xInterval)
-        {
-            g.drawLine(i, 0, i, H);
-        }
-
-        for (int i = yCenter % yInterval; i < H; i += yInterval)
-        {
-            g.drawLine(0, i, W, i);
-        }
-
-        g.fillOval(xCenter - 7, yCenter -7, 14, 14);
-
-        g.setColor(Color.BLUE);
-        g.setStroke(new BasicStroke(2*bufforScale));
-
-        int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-
-        for (int i = 0; i < equation.getLength(); i += 1)
-        {
-            x1 = (int)(equation.getX(i) * W) + xCenter;
-            y1 = (int)(yCenter-equation.getY(i)*yInterval);
-
-            if (i != 0)
-            {
-                g.drawLine(x1, y1, x2, y2);
-            }
-
-            x2 = x1;
-            y2 = y1;
-        }
-
-    }
-     */
 
 }

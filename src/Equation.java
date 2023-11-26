@@ -34,24 +34,31 @@ public abstract class Equation {
         this.length = l;
         this.x = new double[l];
         this.y = new double[l];
-
-        calculateValues();
+        update = true;
     }
 
     final public void setInterval(double x1, double x2) {
         this.start = x1;
         this.stop = x2;
+
+        update = true;
+    }
+    public void optimazeSize()
+    {
+
     }
 
     final public EquType getType() {
         return type;
     }
 
-    final public double getX(int n) {
+    final public double getX(int n)
+    {
         return x[n];
     }
 
-    final public double getY(int n) {
+    final public double getY(int n)
+    {
         return y[n];
     }
 
@@ -98,42 +105,44 @@ public abstract class Equation {
     public void setA(double A)
     {
         this.A = A;
-        calculateValues();
+        update = true;
     }
     public void setB(double B)
     {
         this.B = B;
-        calculateValues();
+        update = true;
     }
     public void setC(double C)
     {
         this.C = C;
-        calculateValues();
+        update = true;
     }
     public void setD(double D)
     {
         this.D = D;
-        calculateValues();
+        update = true;
     }
     public void setE(double E)
     {
         this.E = E;
-        calculateValues();
+        update = true;
     }
     public void setF(double F)
     {
         this.F = F;
-        calculateValues();
+        update = true;
     }
     public void setG(double G)
     {
         this.G = G;
-        calculateValues();
+        update = true;
     }
 
     protected EquType type;
     protected double[] x;
     protected double[] y;
     protected double A, B, C, D, E, F, G, start, stop;
-    protected int length;
+    protected int length, optimalSize, epsilon;
+    protected int xBoxGrid, yBoxGrid;
+    protected boolean update = true;
 }
