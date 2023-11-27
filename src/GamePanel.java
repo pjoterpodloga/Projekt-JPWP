@@ -14,7 +14,7 @@ public class GamePanel extends JPanel
     private Timer timer;
     private Equation equation;
     private Graph graph;
-    private Ball ball;
+    private Ball[] ball;
     private double framesPerSecond = 0;
     private boolean running = false;
 
@@ -31,8 +31,6 @@ public class GamePanel extends JPanel
 
         int drawCount = 0;
 
-        double scaleC = 0.0;
-
         double lastElapsedTime_ms = timer.getTotalElapsedTime_ms();
         while(running)
         {
@@ -48,9 +46,6 @@ public class GamePanel extends JPanel
                 repaintNewInterval = totalElapsedTime_ms + repaintInterval;
                 repaint();
                 drawCount += 1;
-
-                //scaleC += 0.01;
-                equation.setC(scaleC);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -62,14 +57,61 @@ public class GamePanel extends JPanel
         }
 
         clean();
-
     }
     public void update(double dt)
     {
         equation.optimizeSize();
         equation.calculateValues();
 
-        ball.calculateDisplacement(dt);
+        checkCollision();
+
+        ball[0].calculateDisplacement(dt);
+    }
+    public void checkCollision()
+    {
+        double r = ball[0].getRadius() / 2;
+        int x1 = (int)(ball[0].getxPos() * xGridInterval + xCenter), y1 = (int)(yCenter - ball[0].getyPos() * yGridInterval), x2, y2;
+
+        int index = -1;
+
+        double dx, dy, minD = r + 4, d;
+
+        for (int i = 0; i < equation.getLength(); i += 1)
+        {
+            x2 = (int)(equation.getX(i) * xGridInterval) + xCenter;
+            y2 = (int)(yCenter-equation.getY(i)*yGridInterval);
+
+            dx = x1 - x2;
+            dy = y1 - y2;
+
+            // Calculate norm
+            d = Math.sqrt(dx*dx + dy*dy);
+
+            if (minD > d)
+            {
+                minD = d;
+                index = i;
+            }
+        }
+
+        double x, y, dx1, dx2, dy1, dy2, vx, vy;
+
+        // Calculate derivative in point
+        if (minD <= r + 0.1)
+        {
+            vx = equation.getX(index) - ball[0].getxPos();
+            vy = equation.getY(index) - ball[0].getyPos();
+
+            d = Math.sqrt(vx * vx + vy * vy) * 1.1;
+
+            vx = -vx/d * ball[0].getVelocityModulus();
+            vy = -vy/d * ball[0].getVelocityModulus();
+
+            ball[0].setxVelocity(vx);
+            ball[0].setyVelocity(vy);
+
+        }
+
     }
     public void initPanel()
     {
@@ -94,10 +136,11 @@ public class GamePanel extends JPanel
 
         timer = new Timer((int)maxFPS);
 
-        ball = new Ball(10);
-        ball.setyAcceleration(-9.81);
-        ball.setxPos(4);
-        ball.setyPos(4);
+        ball = new Ball[1];
+        ball[0] = new Ball(10);
+        ball[0].setyAcceleration(-9.81 / 10.);
+        ball[0].setxPos(4);
+        ball[0].setyPos(4);
     }
 
     private int width;
@@ -181,8 +224,8 @@ public class GamePanel extends JPanel
         }
 
 
-        int d = ball.getRadius() * 2;
-        int x = ball.getxPos() * xGridInterval, y = ball.getyPos();
+        int d = ball[0].getRadius() * 2;
+        int x = (int)(ball[0].getxPos() * xGridInterval + xCenter), y = (int)(yCenter - ball[0].getyPos() * yGridInterval);
 
         g2.setColor(ballColor);
         g2.fillOval(x - d/2, y - d/2, d, d);

@@ -6,8 +6,22 @@ public class Ball {
     private double xPos, yPos;
     private double xVelocity, yVelocity;
     private double xAcceleration, yAcceleration;
-    private double xForce, yForce;
 
+    public Ball()
+    {
+        radius = 10;
+
+        mass = 1;
+
+        xPos = 0;
+        yPos = 0;
+
+        xVelocity = 0;
+        yVelocity = 0;
+
+        xAcceleration = 0;
+        yAcceleration = 0;
+    }
     public Ball(int r)
     {
         radius = r;
@@ -22,41 +36,37 @@ public class Ball {
 
         xAcceleration = 0;
         yAcceleration = 0;
-
-        xForce = 0;
-        yForce = 0;
     }
 
     public void setRadius(int r)
     {
         radius = r;
     }
-    public void setxPos(int x)
+    public void setxPos(double x)
     {
         xPos = x;
     }
-    public void setyPos(int y)
+    public void setyPos(double y)
     {
         yPos = y;
     }
-    public void setxAcceleration(double a)
+    public void setxVelocity(double xv) { xVelocity = xv; }
+    public void setyVelocity(double yv) { yVelocity = yv; }
+    public void setxAcceleration(double xa)
     {
-        xAcceleration = a;
+        xAcceleration = xa;
     }
-    public void setyAcceleration(double a)
+    public void setyAcceleration(double ya)
     {
-        yAcceleration = a;
+        yAcceleration = ya;
     }
     public void calculateDisplacement(double dt)
     {
-        xAcceleration += xForce / mass;
-        yAcceleration += yForce / mass;
-
-        double xDis = xVelocity * dt + xAcceleration * dt * dt / 2.;
-        double yDis = yVelocity * dt + yAcceleration * dt * dt / 2.;
-
         xVelocity += xAcceleration * dt;
         yVelocity += yAcceleration * dt;
+
+        double xDis = xVelocity * dt;
+        double yDis = yVelocity * dt;
 
         xPos += xDis;
         yPos += yDis;
@@ -65,12 +75,17 @@ public class Ball {
     {
         return radius;
     }
-    public int getxPos()
+    public double getxPos()
     {
-        return (int)xPos;
+        return xPos;
     }
-    public int getyPos()
+    public double getyPos()
     {
-        return (int)yPos;
+        return yPos;
     }
+    public double getxVelocity() { return xVelocity; }
+    public double getyVelocity() { return yVelocity; }
+    public double getVelocityModulus() { return Math.sqrt(xVelocity*xVelocity + yVelocity*yVelocity);}
+    public double getxAcceleration() { return xAcceleration; }
+    public double getyAcceleration() { return yAcceleration; }
 }

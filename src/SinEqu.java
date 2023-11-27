@@ -9,8 +9,8 @@ public class SinEqu extends Equation {
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A = 1.; // Amplitude
-        this.B = 1.; // Frequency
+        this.A = 2.; // Amplitude
+        this.B = 0.01; // Frequency
         this.C = 0.; // Phase
         this.D = 0.; // Offset
 
@@ -41,6 +41,11 @@ public class SinEqu extends Equation {
     {
         double interval = this.stop - this.start;
         double gridFactor = Math.abs(this.A * this.B);
+
+        if (gridFactor < 1.)
+        {
+            gridFactor = 1.;
+        }
 
         if (gridFactor > 100.)
         {
