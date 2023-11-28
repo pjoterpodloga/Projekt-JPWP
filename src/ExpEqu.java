@@ -9,9 +9,9 @@ public class ExpEqu extends Equation {
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A =  3.; // Scale
+        this.A =  1.; // Scale
         this.B = -1.; // Rise rate
-        this.C =  3.; // X Offset
+        this.C =  1.; // X Offset
         this.D =  0.; // Y Offset
 
         this.epsilon = 100;

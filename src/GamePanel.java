@@ -1,5 +1,7 @@
 package src;
 
+import jdk.jshell.execution.Util;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -22,6 +24,7 @@ public class GamePanel extends JPanel
     private int xGridInterval;
     private int yGridInterval;
     private double plotScale = 1.0;
+    private double gravity = -20;
     private boolean running = false;
 
     private void initPanel()
@@ -48,9 +51,9 @@ public class GamePanel extends JPanel
 
         ball = new Ball[1];
         ball[0] = new Ball(0.1);
-        ball[0].setyAcceleration(-9.81);
-        ball[0].setxPos(4);
-        ball[0].setyPos(4);
+        ball[0].setyAcceleration(gravity);
+        ball[0].setxPos(0.9);
+        ball[0].setyPos(3.5);
     }
     public void run()
     {
@@ -122,57 +125,76 @@ public class GamePanel extends JPanel
     // TODO: Need to do some refactoring of checkCollision() method
     private void checkCollision(Ball b)
     {
-        double r = b.getRadius();
-        int index = -1;
-
-        double x1 = b.getxPos(), y1 = b.getyPos();
-        double x2, y2;
+        double xBall = b.getxPos(), yBall = b.getyPos();
 
         Vector3D vn = new Vector3D(0);
 
-        double minD = r + 1, d;
+        double r = b.getRadius(), d, minD = r + 1.;
+        double attackAngle = 0, aaEpsilon = 0.999;
+        int indexAA = -1, indexClosest = -1;
 
-        for (int i = 0; i < equation.getLength(); i += 1)
+        Vector3D veloVectorBall = Utils.normalized(b.getVelocityVector());
+
+        for (int i = 1; i < equation.getLength() - 1; i += 1)
         {
-            vn.x = equation.getX(i) - x1;
-            vn.y = equation.getY(i) - y1;
+            vn.x = equation.getX(i) - xBall;
+            vn.y = equation.getY(i) - yBall;
 
             d = Utils.norm(vn);
+
+            attackAngle = Utils.dot(veloVectorBall, Utils.normalized(vn));
+
+            if (attackAngle >= aaEpsilon)
+            {
+                indexAA = i;
+            }
 
             if (minD > d)
             {
                 minD = d;
-                index = i;
+                indexClosest = i;
             }
         }
 
-        double dx, dy;
+        final double bounceDecayValue = 0.9;
+        final double minVelocity = 0.01;
+
+        int index = indexAA;
+
+        if (indexAA == -1)
+        {
+            index = indexClosest;
+        }
 
         // Calculate vector of bounce
-        if (minD <= r)
+        if (minD <= r && b.getHitCountdown() <= 0)
         {
-            dx = equation.getX(index + 1) - equation.getX(index - 1);
-            dy = equation.getY(index + 1) - equation.getY(index - 1);
+            b.hit();
+
+            double dx = equation.getX(index + 1) - equation.getX(index - 1);
+            double dy = equation.getY(index + 1) - equation.getY(index - 1);
 
             double a = dy/dx;
-            double v = b.getVelocityModulus() * 0.75;
+            double v = b.getVelocityModulus() * bounceDecayValue;
 
-            if (v < 0.0001)
+            if (v < minVelocity)
             {
-                v = 0.0001;
+                b.setStuck();
             }
 
-            Vector3D v1 = new Vector3D(1, a, 0);
-            Vector3D vd = new Vector3D(b.getxPos() - equation.getX(index), b.getyPos() - equation.getY(index), 0);
+            double x = equation.getX(index);
+            double y = equation.getY(index);
+
+            Vector3D va = new Vector3D(1, a, 0);
+            Vector3D vd = new Vector3D(x - xBall, y - yBall, 0);
             vd = Utils.normalized(vd);
-            vn = Utils.cross(v1, new Vector3D(0, 0, 1));
+            vn = Utils.cross(new Vector3D(0, 0, 1), va);
             vn = Utils.normalized(vn);
             Vector3D vn1 = Utils.scaleVector3D(vn, 2.* Utils.dot(vd, vn));
             Vector3D vb = Utils.subVector3D(vd, vn1);
-            vb = Utils.scaleVector3D(Utils.normalized(vb), -v);
+            vb = Utils.scaleVector3D(Utils.normalized(vb), v);
             b.setVelocity(vb);
         }
-
     }
     private final Color plotColor = new Color(187, 185, 157);
     private final Color mainGridColor = new Color(0, 0, 0);
@@ -238,7 +260,8 @@ public class GamePanel extends JPanel
             y2 = y1;
         }
 
-        int d = (int)(ball[0].getRadius() * Math.sqrt(xGridInterval * yGridInterval));
+        double gridAvg = Math.sqrt(xGridInterval * yGridInterval);
+        int d = (int)(ball[0].getRadius() * gridAvg);
         int x = (int)(ball[0].getxPos() * xGridInterval + xCenter), y = (int)(yCenter - ball[0].getyPos() * yGridInterval);
 
         g2.setColor(ballColor);
@@ -246,6 +269,7 @@ public class GamePanel extends JPanel
 
         g2.setColor(debugColor);
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
+        g2.drawLine(x, y, x + (int)(ball[0].getxVelocity() * gridAvg * 0.1), y - (int)(ball[0].getyVelocity() * gridAvg * 0.1));
 
         g.dispose();
     }

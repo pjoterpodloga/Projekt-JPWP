@@ -11,7 +11,7 @@ public class SinEqu extends Equation {
 
         this.A = 3.; // Amplitude
         this.B = 0.25; // Frequency
-        this.C = 0.; // Phase
+        this.C = 0.2; // Phase
         this.D = 0.; // Offset
 
         this.epsilon = 100;
