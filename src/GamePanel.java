@@ -23,6 +23,10 @@ public class GamePanel extends JPanel
         double totalElapsedTime_ms;
         double dt;
 
+        double updateInterval = 2.;
+        double updateNewInterval = updateInterval;
+        double lastUpdate = 0;
+
         double repaintInterval = 1000. / maxFPS;
         double repaintNewInterval = repaintInterval;
 
@@ -35,17 +39,24 @@ public class GamePanel extends JPanel
         while(running)
         {
             totalElapsedTime_ms = timer.getTotalElapsedTime_ms();
-            dt = (totalElapsedTime_ms - lastElapsedTime_ms)/ 1_000.;
+            lastUpdate += (totalElapsedTime_ms - lastElapsedTime_ms)/ 1_000.;
             lastElapsedTime_ms = totalElapsedTime_ms;
 
-            update(dt);
 
+            if (totalElapsedTime_ms >= updateNewInterval)
+            {
+                updateNewInterval = totalElapsedTime_ms + updateInterval;
+                update(lastUpdate);
+                lastUpdate = 0;
+            }
 
             if (totalElapsedTime_ms >= repaintNewInterval)
             {
                 repaintNewInterval = totalElapsedTime_ms + repaintInterval;
                 repaint();
                 drawCount += 1;
+
+                equation.setC(equation.getC() - 0.01);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -94,22 +105,38 @@ public class GamePanel extends JPanel
             }
         }
 
-        double x, y, dx1, dx2, dy1, dy2, vx, vy;
-
         // Calculate derivative in point
-        if (minD <= r + 0.1)
+        // TODO: Implement vectors
+        if (minD <= r + 0.5 && !ball[0].isBounced())
         {
-            vx = equation.getX(index) - ball[0].getxPos();
-            vy = equation.getY(index) - ball[0].getyPos();
+            ball[0].setBounced();
 
-            d = Math.sqrt(vx * vx + vy * vy) * 1.1;
+            dx = equation.getX(index + 1) - equation.getX(index - 1);
+            dy = equation.getY(index + 1) - equation.getY(index - 1);
 
-            vx = -vx/d * ball[0].getVelocityModulus();
-            vy = -vy/d * ball[0].getVelocityModulus();
+            double a = dy/dx;
+            double v = ball[0].getVelocityModulus() * 0.9;
 
-            ball[0].setxVelocity(vx);
-            ball[0].setyVelocity(vy);
+            if (v < 0.1)
+            {
+                v = 0.1;
+            }
 
+            Vector3D v1 = new Vector3D(1, a, 0);
+            Vector3D vd = new Vector3D(ball[0].getxPos() - equation.getX(index), ball[0].getyPos() - equation.getY(index), 0);
+            vd = Utilis.normalized(vd);
+            Vector3D vn = Utilis.cross(v1, new Vector3D(0, 0, 1));
+            vn = Utilis.normalized(vn);
+            Vector3D vn1 = vn;
+            vn1.scale(2.*Utilis.dot(vd, vn));
+            Vector3D vb = Utilis.subVector3D(vd, vn1);
+            vb = Utilis.normalized(vb);
+            vb.scale(-v);
+            ball[0].setVelocity(vb);
+        }
+        else
+        {
+            ball[0].resetBounced();
         }
 
     }
@@ -134,7 +161,7 @@ public class GamePanel extends JPanel
         equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
         equation.optimizeSize();
 
-        timer = new Timer((int)maxFPS);
+        timer = new Timer((int)maxFPS * 16);
 
         ball = new Ball[1];
         ball[0] = new Ball(10);

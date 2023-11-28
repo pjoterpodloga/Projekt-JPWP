@@ -4,8 +4,9 @@ public class Ball {
     private int radius;
     private double mass;
     private double xPos, yPos;
-    private double xVelocity, yVelocity;
-    private double xAcceleration, yAcceleration;
+    private Vector3D velocity;
+    private Vector3D acceleration;
+    private boolean bounced;
 
     public Ball()
     {
@@ -16,11 +17,11 @@ public class Ball {
         xPos = 0;
         yPos = 0;
 
-        xVelocity = 0;
-        yVelocity = 0;
+        velocity = new Vector3D(0);
 
-        xAcceleration = 0;
-        yAcceleration = 0;
+        acceleration = new Vector3D(0);
+
+        bounced = false;
     }
     public Ball(int r)
     {
@@ -31,11 +32,11 @@ public class Ball {
         xPos = 0;
         yPos = 0;
 
-        xVelocity = 0;
-        yVelocity = 0;
+        velocity = new Vector3D(0);
 
-        xAcceleration = 0;
-        yAcceleration = 0;
+        acceleration = new Vector3D(0);
+
+        bounced = false;
     }
 
     public void setRadius(int r)
@@ -50,23 +51,27 @@ public class Ball {
     {
         yPos = y;
     }
-    public void setxVelocity(double xv) { xVelocity = xv; }
-    public void setyVelocity(double yv) { yVelocity = yv; }
+    public void setxVelocity(double xv) { velocity.x = xv; }
+    public void setyVelocity(double yv) { velocity.y = yv; }
+    public void setVelocity(Vector3D v) { velocity = v; }
     public void setxAcceleration(double xa)
     {
-        xAcceleration = xa;
+        acceleration.x = xa;
     }
     public void setyAcceleration(double ya)
     {
-        yAcceleration = ya;
+        acceleration.y = ya;
     }
+    public void setBounced()  { this.bounced = true; }
+    public void resetBounced() { this.bounced = false; }
+    public boolean isBounced() { return bounced; }
     public void calculateDisplacement(double dt)
     {
-        xVelocity += xAcceleration * dt;
-        yVelocity += yAcceleration * dt;
+        velocity.x += acceleration.x * dt;
+        velocity.y += acceleration.y * dt;
 
-        double xDis = xVelocity * dt;
-        double yDis = yVelocity * dt;
+        double xDis = velocity.x * dt;
+        double yDis = velocity.y * dt;
 
         xPos += xDis;
         yPos += yDis;
@@ -83,9 +88,9 @@ public class Ball {
     {
         return yPos;
     }
-    public double getxVelocity() { return xVelocity; }
-    public double getyVelocity() { return yVelocity; }
-    public double getVelocityModulus() { return Math.sqrt(xVelocity*xVelocity + yVelocity*yVelocity);}
-    public double getxAcceleration() { return xAcceleration; }
-    public double getyAcceleration() { return yAcceleration; }
+    public double getxVelocity() { return velocity.x; }
+    public double getyVelocity() { return velocity.y; }
+    public double getVelocityModulus() { return Utilis.norm(velocity);}
+    public double getxAcceleration() { return acceleration.x; }
+    public double getyAcceleration() { return acceleration.y; }
 }

@@ -10,7 +10,7 @@ public class SinEqu extends Equation {
         this.y = new double[this.length];
 
         this.A = 2.; // Amplitude
-        this.B = 0.01; // Frequency
+        this.B = 0.25; // Frequency
         this.C = 0.; // Phase
         this.D = 0.; // Offset
 

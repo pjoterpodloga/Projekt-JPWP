@@ -2,6 +2,7 @@ package src;
 
 public abstract class Equation {
     public static Equation createEquation(EquType type) {
+
         Equation returnEqu = switch (type) {
             case POLY1 -> null;
             case POLY2 -> null;
