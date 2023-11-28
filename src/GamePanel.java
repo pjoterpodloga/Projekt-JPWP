@@ -1,7 +1,5 @@
 package src;
 
-import jdk.jshell.execution.Util;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -116,10 +114,9 @@ public class GamePanel extends JPanel
         equation.optimizeSize();
         equation.calculateValues();
 
-        for (int i = 0; i < ball.length; i += 1)
-        {
-            checkCollision(ball[i]);
-            ball[i].calculateDisplacement(dt);
+        for (Ball value : ball) {
+            checkCollision(value);
+            value.calculateDisplacement(dt);
         }
     }
     // TODO: Need to do some refactoring of checkCollision() method
