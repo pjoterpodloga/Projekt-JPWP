@@ -1,8 +1,6 @@
 package src;
 
-import java.util.Vector;
-
-public class Utilis {
+public class Utils {
     static double[] linspace(double start, double stop, int n)
     {
         double[] values = new double[n];
@@ -47,5 +45,13 @@ public class Utilis {
     static Vector3D subVector3D(Vector3D v1, Vector3D v2)
     {
         return new Vector3D(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+    }
+    static Vector3D scaleVector3D(Vector3D v, double s)
+    {
+        v.x *= s;
+        v.y *= s;
+        v.z *= s;
+
+        return v;
     }
 }

@@ -20,10 +20,4 @@ public class Vector3D {
         this.y = y;
         this.z = z;
     }
-    public void scale(double s)
-    {
-        this.x *= s;
-        this.y *= s;
-        this.z *= s;
-    }
 }

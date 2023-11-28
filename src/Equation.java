@@ -4,15 +4,15 @@ public abstract class Equation {
     public static Equation createEquation(EquType type) {
 
         Equation returnEqu = switch (type) {
-            case POLY1 -> null;
-            case POLY2 -> null;
-            case POLY3 -> null;
-            case POLY4 -> null;
+            case POLY1 -> new Poly1Equ();
+            case POLY2 -> new Poly2Equ();
+            case POLY3 -> new Poly3Equ();
+            case POLY4 -> new Poly4Equ();
             case POLY5 -> null;
             case POLY6 -> null;
             case SIN -> new SinEqu();
             case TAN -> null;
-            case EXP -> null;
+            case EXP -> new ExpEqu();
             case LOG -> null;
             default -> null;
         };
@@ -20,15 +20,9 @@ public abstract class Equation {
         return returnEqu;
     }
 
-    protected Equation()
-    {
+    protected Equation() { }
 
-    }
-
-    public void calculateValues()
-    {
-
-    }
+    public void calculateValues() { }
 
     final public void resize(int l)
     {
@@ -44,25 +38,28 @@ public abstract class Equation {
 
         update = true;
     }
-    public void optimizeSize()
-    {
+    public void optimizeSize() { }
 
-    }
+    protected EquType type;
+    protected double[] x;
+    protected double[] y;
+    protected double A, B, C, D, E, F, G, start, stop;
+    protected int length, optimalSize, epsilon;
+    protected int xBoxGrid, yBoxGrid;
+    protected boolean update = true;
 
+    //// Getters ////
     final public EquType getType() {
         return type;
     }
-
     final public double getX(int n)
     {
         return x[n];
     }
-
     final public double getY(int n)
     {
         return y[n];
     }
-
     final double getA()
     {
         return A;
@@ -79,30 +76,24 @@ public abstract class Equation {
     {
         return D;
     }
-
     final double getE()
     {
         return E;
     }
-
     final double getF()
     {
         return F;
     }
-
     final double getG()
     {
         return G;
     }
-
-
     final public int getLength()
     {
         return this.length;
     }
 
     //// Setters ////
-
     public void setA(double A)
     {
         this.A = A;
@@ -138,12 +129,4 @@ public abstract class Equation {
         this.G = G;
         update = true;
     }
-
-    protected EquType type;
-    protected double[] x;
-    protected double[] y;
-    protected double A, B, C, D, E, F, G, start, stop;
-    protected int length, optimalSize, epsilon;
-    protected int xBoxGrid, yBoxGrid;
-    protected boolean update = true;
 }

@@ -36,7 +36,6 @@ public class Game extends JFrame{
 
         return Instance;
     }
-
     private void initWindow()
     {
         this.setSize(WIDTH, HEIGHT);
@@ -48,7 +47,6 @@ public class Game extends JFrame{
 
         this.setVisible(true);
     }
-
     public void run()
     {
         gamePanel = new GamePanel();

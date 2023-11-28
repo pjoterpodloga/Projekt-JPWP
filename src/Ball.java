@@ -1,12 +1,13 @@
 package src;
 
 public class Ball {
-    private int radius;
+
+    //// Private fields ////
+    private double radius;
     private double mass;
     private double xPos, yPos;
     private Vector3D velocity;
     private Vector3D acceleration;
-    private boolean bounced;
 
     public Ball()
     {
@@ -20,10 +21,8 @@ public class Ball {
         velocity = new Vector3D(0);
 
         acceleration = new Vector3D(0);
-
-        bounced = false;
     }
-    public Ball(int r)
+    public Ball(double r)
     {
         radius = r;
 
@@ -35,11 +34,10 @@ public class Ball {
         velocity = new Vector3D(0);
 
         acceleration = new Vector3D(0);
-
-        bounced = false;
     }
 
-    public void setRadius(int r)
+    //// Setters ////
+    public void setRadius(double r)
     {
         radius = r;
     }
@@ -51,8 +49,14 @@ public class Ball {
     {
         yPos = y;
     }
-    public void setxVelocity(double xv) { velocity.x = xv; }
-    public void setyVelocity(double yv) { velocity.y = yv; }
+    public void setxVelocity(double xv)
+    {
+        velocity.x = xv;
+    }
+    public void setyVelocity(double yv)
+    {
+        velocity.y = yv;
+    }
     public void setVelocity(Vector3D v) { velocity = v; }
     public void setxAcceleration(double xa)
     {
@@ -62,9 +66,6 @@ public class Ball {
     {
         acceleration.y = ya;
     }
-    public void setBounced()  { this.bounced = true; }
-    public void resetBounced() { this.bounced = false; }
-    public boolean isBounced() { return bounced; }
     public void calculateDisplacement(double dt)
     {
         velocity.x += acceleration.x * dt;
@@ -76,7 +77,8 @@ public class Ball {
         xPos += xDis;
         yPos += yDis;
     }
-    public int getRadius()
+    //// Getters ////
+    public double getRadius()
     {
         return radius;
     }
@@ -88,9 +90,24 @@ public class Ball {
     {
         return yPos;
     }
-    public double getxVelocity() { return velocity.x; }
-    public double getyVelocity() { return velocity.y; }
-    public double getVelocityModulus() { return Utilis.norm(velocity);}
-    public double getxAcceleration() { return acceleration.x; }
-    public double getyAcceleration() { return acceleration.y; }
+    public double getxVelocity()
+    {
+        return velocity.x;
+    }
+    public double getyVelocity()
+    {
+        return velocity.y;
+    }
+    public double getVelocityModulus()
+    {
+        return Utils.norm(velocity);
+    }
+    public double getxAcceleration()
+    {
+        return acceleration.x;
+    }
+    public double getyAcceleration()
+    {
+        return acceleration.y;
+    }
 }

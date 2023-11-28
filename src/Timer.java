@@ -6,8 +6,6 @@ public class Timer {
     private long tickCounter = 0;
     private long elapsedTicks;
     private long elapsedTime_ns;
-
-    //// Public fields ////
     private long ticks;
     private long nsPerTicks;
     private long lastTime = 0;
@@ -21,7 +19,6 @@ public class Timer {
         ticks = 64;
         this.nsPerTicks = 1_000_000_000L / ticks;
     }
-
     public Timer(long ticks)
     {
         if (ticks > 128)

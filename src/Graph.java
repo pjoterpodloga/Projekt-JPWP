@@ -2,18 +2,19 @@ package src;
 
 public class Graph {
 
-    Graph(double dx, double dy, double griddx, double griddy)
+    //// Private fields ////
+    private double dx;
+    private double dy;
+    private double xGridInterval;
+    private double yGridInterval;
+
+    public Graph(double dx, double dy, double griddx, double griddy)
     {
         this.dx = dx;
         this.dy = dy;
         this.xGridInterval = griddx;
         this.yGridInterval = griddy;
     }
-
-    private double dx;
-    private double dy;
-    private double xGridInterval;
-    private double yGridInterval;
 
     //// Setters ////
     public void setdx(double dx)
@@ -34,7 +35,6 @@ public class Graph {
     }
 
     //// Getters ////
-
     public double getdx()
     {
         return dx;

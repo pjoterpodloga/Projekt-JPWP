@@ -9,7 +9,7 @@ public class SinEqu extends Equation {
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A = 2.; // Amplitude
+        this.A = 3.; // Amplitude
         this.B = 0.25; // Frequency
         this.C = 0.; // Phase
         this.D = 0.; // Offset
@@ -29,7 +29,7 @@ public class SinEqu extends Equation {
 
         update = false;
 
-        x = Utilis.linspace(this.start, this.stop, length);
+        x = Utils.linspace(this.start, this.stop, length);
         for (int i = 0; i < this.length; i += 1)
         {
             y[i] = this.A * Math.sin(2. * Math.PI * ( x[i] * this.B - this.C)) + this.D;

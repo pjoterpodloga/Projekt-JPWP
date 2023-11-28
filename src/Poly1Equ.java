@@ -1,25 +1,23 @@
 package src;
 
-public class ExpEqu extends Equation {
+public class Poly1Equ extends Equation{
 
-    public ExpEqu() {
+    public Poly1Equ() {
         this.length = 100;
         this.optimalSize = this. length;
 
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A =  3.; // Scale
-        this.B = -1.; // Rise rate
-        this.C =  3.; // X Offset
-        this.D =  0.; // Y Offset
+        this.A = 1.; // A coefficient
+        this.B = -1.; // Y Offset
 
         this.epsilon = 100;
 
         this.xBoxGrid = 1;
         this.yBoxGrid = 1;
 
-        this.type = EquType.EXP;
+        this.type = EquType.POLY1;
     }
 
     @Override
@@ -32,7 +30,7 @@ public class ExpEqu extends Equation {
         x = Utils.linspace(this.start, this.stop, length);
         for (int i = 0; i < this.length; i += 1)
         {
-            y[i] = this.A*Math.exp(this.B*x[i] + this.C) + this.D;
+            y[i] = this.A * x[i] + this.B;
         }
     }
 
