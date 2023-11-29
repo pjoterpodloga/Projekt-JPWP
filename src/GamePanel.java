@@ -28,7 +28,7 @@ public class GamePanel extends JPanel
     private int xGridInterval;
     private int yGridInterval;
     private double plotScale = 1.0;
-    private double gravity = -20;
+    private Vector3D gravity = new Vector3D(0, -9.81/10., 0);
     private boolean running = false;
 
     private void initPanel()
@@ -55,7 +55,6 @@ public class GamePanel extends JPanel
 
         ball = new Ball[1];
         ball[0] = new Ball(0.1);
-        ball[0].setyAcceleration(gravity);
         ball[0].setxPos(0.9);
         ball[0].setyPos(3.5);
     }
@@ -103,7 +102,7 @@ public class GamePanel extends JPanel
                 repaintNewInterval = totalElapsedTime_ms + repaintInterval;
                 repaint();
                 drawCount += 1;
-                equation.setC(equation.getC() + 0.001);
+                //equation.setC(equation.getC() + 0.001);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -135,7 +134,7 @@ public class GamePanel extends JPanel
         Vector3D vn = new Vector3D(0);
 
         double r = b.getRadius(), dsq, minDsq = r * r + 0.5;
-        double attackAngle, aaEpsilon = 0.999;
+        double maxAttackAngle = 0, aaEpsilon = 0.999;
         int indexAA = -1, indexClosest = -1;
 
         Vector3D veloVectorBall = Vector3D.normalized(b.getVelocityVector());
@@ -147,11 +146,15 @@ public class GamePanel extends JPanel
 
             dsq = Vector3D.dot(vn, vn);
 
-            attackAngle = Vector3D.dot(veloVectorBall, Vector3D.normalized(vn));
+            double attackAngle = Vector3D.dot(veloVectorBall, Vector3D.normalized(vn));
 
-            if (attackAngle >= aaEpsilon)
+            if (maxAttackAngle <= attackAngle)
             {
-                indexAA = i;
+                maxAttackAngle = attackAngle;
+                if (maxAttackAngle >= aaEpsilon)
+                {
+                    indexAA = i;
+                }
             }
 
             if (minDsq > dsq)
@@ -161,15 +164,14 @@ public class GamePanel extends JPanel
             }
         }
 
-        final double bounceDecayValue = 0.9;
-        final double minVelocity = 0.1;
-
         int index = indexAA;
 
         if (indexAA == -1)
         {
             index = indexClosest;
         }
+
+        Vector3D n = null, d = null;
 
         // Calculate vector of bounce
         if (Math.sqrt(minDsq) <= r && b.getHitCountdown() <= 0)
@@ -180,22 +182,15 @@ public class GamePanel extends JPanel
             double dy = equation.getY(index + 1) - equation.getY(index - 1);
 
             double a = dy/dx;
-            double v = b.getVelocityModulus() * bounceDecayValue;
 
             double x = equation.getX(index);
             double y = equation.getY(index);
 
-            Vector3D va = new Vector3D(1, a, 0);
-            Vector3D vd = new Vector3D(x - xBall, y - yBall, 0);
-
-            vd = Vector3D.normalized(vd);
-            vn = Vector3D.cross(new Vector3D(0, 0, 1), va);
-            vn = Vector3D.normalized(vn);
-            Vector3D vn1 = Vector3D.scale(vn, 2.* Vector3D.dot(vd, vn));
-            Vector3D vb = Vector3D.sub(vd, vn1);
-            vb = Vector3D.scale(Vector3D.normalized(vb), v);
-            b.setVelocity(vb);
+            n = Vector3D.normalized(Vector3D.cross(new Vector3D(1, a, 0), new Vector3D(0, 0, 1)));
+            d = Vector3D.normalized(new Vector3D(x - xBall, y - yBall, 0));
         }
+
+        b.physicsProperties.calculateAcceleration(gravity, n, d);
     }
     private final Color plotColor = new Color(187, 185, 157);
     private final Color mainGridColor = new Color(0, 0, 0);
@@ -270,7 +265,7 @@ public class GamePanel extends JPanel
 
         g2.setColor(debugColor);
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
-        g2.drawLine(x, y, x + (int)(ball[0].getxVelocity() * gridAvg * 0.1), y - (int)(ball[0].getyVelocity() * gridAvg * 0.1));
+        g2.drawLine(x, y, x + (int)(ball[0].physicsProperties.getVelocity().x * gridAvg * 0.1), y - (int)(ball[0].physicsProperties.getVelocity().y * gridAvg * 0.1));
 
         g.dispose();
     }

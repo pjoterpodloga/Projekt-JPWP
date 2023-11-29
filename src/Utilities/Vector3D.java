@@ -4,9 +4,9 @@ public class Vector3D {
     public double x, y, z;
     public Vector3D()
     {
-        x = 0;
-        y = 0;
-        z = 0;
+        x = 1 / Math.sqrt(3);
+        y = 1 / Math.sqrt(3);
+        z = 1 / Math.sqrt(3);
     }
     public Vector3D(double xyz)
     {

@@ -2,16 +2,12 @@ package src;
 
 import src.Utilities.Vector3D;
 
-import java.util.Arrays;
-
 public class Ball {
 
     //// Private fields ////
     private double radius;
-    private double mass;
-    private Vector3D pos;
-    private Vector3D velocity;
-    private Vector3D acceleration;
+    private Vector3D position;
+    public PhysicsProperties physicsProperties;
     private int hitCount;
     private int hitCountdown;
     private boolean stuck;
@@ -19,10 +15,8 @@ public class Ball {
     public Ball()
     {
         radius = 10;
-        mass = 1;
-        pos = new Vector3D(0);
-        velocity = new Vector3D(0);
-        acceleration = new Vector3D(0);
+        position = new Vector3D(0);
+        physicsProperties = new PhysicsProperties(1);
 
         hitCountdown = 0;
         hitCount = 0;
@@ -31,10 +25,8 @@ public class Ball {
     public Ball(double r)
     {
         radius = r;
-        mass = 1;
-        pos = new Vector3D(0);
-        velocity = new Vector3D(0);
-        acceleration = new Vector3D(0);
+        position = new Vector3D(0);
+        physicsProperties = new PhysicsProperties(1);
 
         hitCountdown = 0;
         hitCount = 0;
@@ -44,18 +36,19 @@ public class Ball {
     {
         hitCountdown--;
 
-        velocity.x += acceleration.x * dt;
-        velocity.y += acceleration.y * dt;
+        physicsProperties.updateVelocity(dt);
+
+        Vector3D velocity = physicsProperties.getVelocity();
 
         Vector3D displacement = new Vector3D(velocity.x * dt, velocity.y * dt, 0);
 
-        pos.x += displacement.x;
-        pos.y += displacement.y;
+        position.x += displacement.x;
+        position.y += displacement.y;
     }
     public void hit()
     {
         hitCount++;
-        hitCountdown = 2;
+        hitCountdown = 3;
     }
     //// Setters ////
     public void setRadius(double r)
@@ -64,37 +57,13 @@ public class Ball {
     }
     public void setxPos(double x)
     {
-       pos.x = x;
+       position.x = x;
     }
     public void setyPos(double y)
     {
-        pos.y = y;
+        position.y = y;
     }
-    public void setxVelocity(double xv)
-    {
-        velocity.x = xv;
-    }
-    public void setyVelocity(double yv)
-    {
-        velocity.y = yv;
-    }
-    public void setVelocity(Vector3D v) { velocity = v; }
-    public void setxAcceleration(double xa)
-    {
-        acceleration.x = xa;
-    }
-    public void setyAcceleration(double ya)
-    {
-        acceleration.y = ya;
-    }
-    public void resetHitCount()
-    {
-        hitCount = 0;
-    }
-    public void setStuck()
-    {
-        stuck = true;
-    }
+
     //// Getters ////
     public double getRadius()
     {
@@ -102,46 +71,26 @@ public class Ball {
     }
     public double getxPos()
     {
-        return pos.x;
+        return position.x;
     }
     public double getyPos()
     {
-        return pos.y;
-    }
-    public double getxVelocity()
-    {
-        return velocity.x;
-    }
-    public double getyVelocity()
-    {
-        return velocity.y;
-    }
-    public Vector3D getVelocityVector()
-    {
-        return velocity;
-    }
-    public double getVelocityModulus()
-    {
-        return Vector3D.norm(velocity);
-    }
-    public double getxAcceleration()
-    {
-        return acceleration.x;
-    }
-    public double getyAcceleration()
-    {
-        return acceleration.y;
-    }
-    public int getHitCount()
-    {
-        return hitCount;
+        return position.y;
     }
     public int getHitCountdown()
     {
         return hitCountdown;
     }
-    public boolean isStuck()
+    public Vector3D getVelocityVector()
     {
-        return stuck;
+        return physicsProperties.getVelocity();
+    }
+    public Vector3D getAccelerationVector()
+    {
+        return physicsProperties.getAcceleration();
+    }
+    public int getHitCount()
+    {
+        return hitCount;
     }
 }
