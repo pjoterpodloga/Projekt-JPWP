@@ -1,5 +1,11 @@
 package src;
 
+import src.Equations.EquType;
+import src.Equations.Equation;
+import src.Utilities.Graph;
+import src.Utilities.Timer;
+import src.Utilities.Vector3D;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -10,7 +16,7 @@ public class GamePanel extends JPanel
     private final int plotWidth = 1000;
     private final int plotHeight = 1000;
     private final double maxFPS = 60;
-    private Timer timer;
+    private src.Utilities.Timer timer;
     private Equation equation;
     private Graph graph;
     private Ball[] ball;
@@ -97,6 +103,7 @@ public class GamePanel extends JPanel
                 repaintNewInterval = totalElapsedTime_ms + repaintInterval;
                 repaint();
                 drawCount += 1;
+                equation.setC(equation.getC() + 0.001);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -119,42 +126,42 @@ public class GamePanel extends JPanel
             value.calculateDisplacement(dt);
         }
     }
-    // TODO: Need to do some refactoring of checkCollision() method
+    // TODO: Need to think of other way to calculate collision, bounce and roll
     private void checkCollision(Ball b)
     {
         double xBall = b.getxPos(), yBall = b.getyPos();
 
         Vector3D vn = new Vector3D(0);
 
-        double r = b.getRadius(), d, minD = r + 1.;
-        double attackAngle = 0, aaEpsilon = 0.999;
+        double r = b.getRadius(), dsq, minDsq = r * r + 0.5;
+        double attackAngle, aaEpsilon = 0.999;
         int indexAA = -1, indexClosest = -1;
 
-        Vector3D veloVectorBall = Utils.normalized(b.getVelocityVector());
+        Vector3D veloVectorBall = Vector3D.normalized(b.getVelocityVector());
 
         for (int i = 1; i < equation.getLength() - 1; i += 1)
         {
             vn.x = equation.getX(i) - xBall;
             vn.y = equation.getY(i) - yBall;
 
-            d = Utils.norm(vn);
+            dsq = Vector3D.dot(vn, vn);
 
-            attackAngle = Utils.dot(veloVectorBall, Utils.normalized(vn));
+            attackAngle = Vector3D.dot(veloVectorBall, Vector3D.normalized(vn));
 
             if (attackAngle >= aaEpsilon)
             {
                 indexAA = i;
             }
 
-            if (minD > d)
+            if (minDsq > dsq)
             {
-                minD = d;
+                minDsq= dsq;
                 indexClosest = i;
             }
         }
 
-        final double bounceDecayValue = 0.9;
-        final double minVelocity = 0.01;
+        final double bounceDecayValue = 1;
+        final double minVelocity = 0.1;
 
         int index = indexAA;
 
@@ -164,7 +171,7 @@ public class GamePanel extends JPanel
         }
 
         // Calculate vector of bounce
-        if (minD <= r && b.getHitCountdown() <= 0)
+        if (Math.sqrt(minDsq) <= r && b.getHitCountdown() <= 0)
         {
             b.hit();
 
@@ -174,22 +181,18 @@ public class GamePanel extends JPanel
             double a = dy/dx;
             double v = b.getVelocityModulus() * bounceDecayValue;
 
-            if (v < minVelocity)
-            {
-                b.setStuck();
-            }
-
             double x = equation.getX(index);
             double y = equation.getY(index);
 
             Vector3D va = new Vector3D(1, a, 0);
             Vector3D vd = new Vector3D(x - xBall, y - yBall, 0);
-            vd = Utils.normalized(vd);
-            vn = Utils.cross(new Vector3D(0, 0, 1), va);
-            vn = Utils.normalized(vn);
-            Vector3D vn1 = Utils.scaleVector3D(vn, 2.* Utils.dot(vd, vn));
-            Vector3D vb = Utils.subVector3D(vd, vn1);
-            vb = Utils.scaleVector3D(Utils.normalized(vb), v);
+
+            vd = Vector3D.normalized(vd);
+            vn = Vector3D.cross(new Vector3D(0, 0, 1), va);
+            vn = Vector3D.normalized(vn);
+            Vector3D vn1 = Vector3D.scale(vn, 2.* Vector3D.dot(vd, vn));
+            Vector3D vb = Vector3D.sub(vd, vn1);
+            vb = Vector3D.scale(Vector3D.normalized(vb), v);
             b.setVelocity(vb);
         }
     }

@@ -1,4 +1,4 @@
-package src;
+package src.Equations;
 
 public enum EquType {
     NONE,

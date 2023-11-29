@@ -1,5 +1,9 @@
 package src;
 
+import src.Utilities.Vector3D;
+
+import java.util.Arrays;
+
 public class Ball {
 
     //// Private fields ////
@@ -26,10 +30,7 @@ public class Ball {
         stuck = false;
 
 
-        for (int i = 0; i < lastDisplacement.length; i += 1)
-        {
-            lastDisplacement[i] = 0;
-        }
+        Arrays.fill(lastDisplacement, 0);
     }
     public Ball(double r)
     {
@@ -44,10 +45,7 @@ public class Ball {
         hitCount = 0;
         stuck = false;
 
-        for (int i = 0; i < lastDisplacement.length; i += 1)
-        {
-            lastDisplacement[i] = 0;
-        }
+        Arrays.fill(lastDisplacement, 0);
     }
 
     double[] lastDisplacement;
@@ -75,23 +73,20 @@ public class Ball {
 
         Vector3D displacement = new Vector3D(velocity.x * dt, velocity.y * dt, 0);
 
-        calculateAvgDisplacement(Utils.norm(displacement));
+        calculateAvgDisplacement(Vector3D.norm(displacement));
 
-        if (avgDisplacement >= 1e-3)
+        if (avgDisplacement >= 1e-1)
         {
             stuck = false;
         }
 
-        if (!(stuck))
-        {
-            pos.x += displacement.x;
-            pos.y += displacement.y;
-        }
+        pos.x += displacement.x;
+        pos.y += displacement.y;
     }
     public void hit()
     {
         hitCount++;
-        hitCountdown = 3;
+        hitCountdown = 2;
     }
     //// Setters ////
     public void setRadius(double r)
@@ -158,7 +153,7 @@ public class Ball {
     }
     public double getVelocityModulus()
     {
-        return Utils.norm(velocity);
+        return Vector3D.norm(velocity);
     }
     public double getxAcceleration()
     {

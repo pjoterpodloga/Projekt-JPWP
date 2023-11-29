@@ -1,4 +1,6 @@
-package src;
+package src.Equations;
+
+import src.Utils;
 
 public class Poly1Equ extends Equation{
 

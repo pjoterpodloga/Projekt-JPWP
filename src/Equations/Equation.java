@@ -1,4 +1,4 @@
-package src;
+package src.Equations;
 
 public abstract class Equation {
     public static Equation createEquation(EquType type) {
@@ -60,31 +60,31 @@ public abstract class Equation {
     {
         return y[n];
     }
-    final double getA()
+    final public double getA()
     {
         return A;
     }
-    final double getB()
+    final public double getB()
     {
         return B;
     }
-    final double getC()
+    final public double getC()
     {
         return C;
     }
-    final double getD()
+    final public double getD()
     {
         return D;
     }
-    final double getE()
+    final public double getE()
     {
         return E;
     }
-    final double getF()
+    final public double getF()
     {
         return F;
     }
-    final double getG()
+    final public double getG()
     {
         return G;
     }

@@ -1,26 +1,27 @@
-package src;
+package src.Equations;
 
-public class Poly4Equ extends Equation{
+import src.Utils;
 
-    public Poly4Equ() {
+public class ExpEqu extends Equation {
+
+    public ExpEqu() {
         this.length = 100;
         this.optimalSize = this. length;
 
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A =  1.; // A Coefficient
-        this.B = -1.; // B Coefficient
-        this.C =  0.; // C Coefficient
-        this.D =  0.; // D Coefficient
-        this.E =  0.; // Y Offset
+        this.A =  1.; // Scale
+        this.B = -1.; // Rise rate
+        this.C =  1.; // X Offset
+        this.D =  0.; // Y Offset
 
         this.epsilon = 100;
 
         this.xBoxGrid = 1;
         this.yBoxGrid = 1;
 
-        this.type = EquType.POLY2;
+        this.type = EquType.EXP;
     }
 
     @Override
@@ -33,8 +34,7 @@ public class Poly4Equ extends Equation{
         x = Utils.linspace(this.start, this.stop, length);
         for (int i = 0; i < this.length; i += 1)
         {
-            y[i]  = this.A*x[i]*x[i]*x[i]*x[i] + this.B*x[i]*x[i]*x[i];
-            y[i] += this.C*x[i]*x[i] + this.D*x[i] + this.E;
+            y[i] = this.A*Math.exp(this.B*x[i] + this.C) + this.D;
         }
     }
 

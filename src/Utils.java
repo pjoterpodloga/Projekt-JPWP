@@ -1,7 +1,7 @@
 package src;
 
 public class Utils {
-    static double[] linspace(double start, double stop, int n)
+    static public double[] linspace(double start, double stop, int n)
     {
         double[] values = new double[n];
 
@@ -16,42 +16,5 @@ public class Utils {
         }
 
         return values;
-    }
-    static double dot(Vector3D v1, Vector3D v2)
-    {
-        return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
-    }
-    static double norm(Vector3D v)
-    {
-        return Math.sqrt(dot(v, v));
-    }
-    static Vector3D cross(Vector3D v1, Vector3D v2)
-    {
-        double x = v1.y * v2.z - v1.z * v2.y;
-        double y = v1.z * v2.x - v1.x * v2.z;
-        double z = v1.x * v2.y - v1.y * v2.x;
-
-        return new Vector3D(x, y, z);
-    }
-    static Vector3D normalized(Vector3D v)
-    {
-        double d = norm(v);
-        return new Vector3D(v.x/d, v.y/d, v.z/d);
-    }
-    static Vector3D addVector3D(Vector3D v1, Vector3D v2)
-    {
-        return new Vector3D(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
-    }
-    static Vector3D subVector3D(Vector3D v1, Vector3D v2)
-    {
-        return new Vector3D(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
-    }
-    static Vector3D scaleVector3D(Vector3D v, double s)
-    {
-        v.x *= s;
-        v.y *= s;
-        v.z *= s;
-
-        return v;
     }
 }

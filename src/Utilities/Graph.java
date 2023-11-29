@@ -1,4 +1,4 @@
-package src;
+package src.Utilities;
 
 public class Graph {
 
