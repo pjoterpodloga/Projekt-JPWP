@@ -24,13 +24,9 @@ public class Ball {
         velocity = new Vector3D(0);
         acceleration = new Vector3D(0);
 
-        lastDisplacement = new double[10];
         hitCountdown = 0;
         hitCount = 0;
         stuck = false;
-
-
-        Arrays.fill(lastDisplacement, 0);
     }
     public Ball(double r)
     {
@@ -40,29 +36,9 @@ public class Ball {
         velocity = new Vector3D(0);
         acceleration = new Vector3D(0);
 
-        lastDisplacement = new double[10];
         hitCountdown = 0;
         hitCount = 0;
         stuck = false;
-
-        Arrays.fill(lastDisplacement, 0);
-    }
-
-    double[] lastDisplacement;
-    double avgDisplacement;
-
-    private void calculateAvgDisplacement(double lastDisplacement)
-    {
-        avgDisplacement = 0;
-
-        for (int i = 1; i < this.lastDisplacement.length; i += 1)
-        {
-            this.lastDisplacement[i] = this.lastDisplacement[i - 1];
-            avgDisplacement += this.lastDisplacement[i];
-        }
-
-        this.lastDisplacement[0] = lastDisplacement;
-        avgDisplacement /= this.lastDisplacement.length;
     }
     public void calculateDisplacement(double dt)
     {
@@ -72,13 +48,6 @@ public class Ball {
         velocity.y += acceleration.y * dt;
 
         Vector3D displacement = new Vector3D(velocity.x * dt, velocity.y * dt, 0);
-
-        calculateAvgDisplacement(Vector3D.norm(displacement));
-
-        if (avgDisplacement >= 1e-1)
-        {
-            stuck = false;
-        }
 
         pos.x += displacement.x;
         pos.y += displacement.y;

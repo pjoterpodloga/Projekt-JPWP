@@ -127,6 +127,7 @@ public class GamePanel extends JPanel
         }
     }
     // TODO: Need to think of other way to calculate collision, bounce and roll
+    // TODO: Add physics and material properties class
     private void checkCollision(Ball b)
     {
         double xBall = b.getxPos(), yBall = b.getyPos();
@@ -160,7 +161,7 @@ public class GamePanel extends JPanel
             }
         }
 
-        final double bounceDecayValue = 1;
+        final double bounceDecayValue = 0.9;
         final double minVelocity = 0.1;
 
         int index = indexAA;
