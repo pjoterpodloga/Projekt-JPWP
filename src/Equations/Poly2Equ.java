@@ -11,9 +11,9 @@ public class Poly2Equ extends Equation{
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A =  1.; // A Coefficient
-        this.B = -1.; // B Coefficient
-        this.C =  0.; // Y Offset
+        this.A =  1; // A Coefficient
+        this.B = -3; // B Coefficient
+        this.C =  -1; // Y Offset
 
         this.epsilon = 100;
 

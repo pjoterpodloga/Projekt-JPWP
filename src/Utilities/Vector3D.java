@@ -20,6 +20,12 @@ public class Vector3D {
         this.y = y;
         this.z = z;
     }
+    public Vector3D(Vector3D v)
+    {
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+    }
 
     static public double dot(Vector3D v1, Vector3D v2)
     {
@@ -40,6 +46,10 @@ public class Vector3D {
     static public Vector3D normalized(Vector3D v)
     {
         double d = norm(v);
+
+        if (d == 0)
+            d = 1.;
+
         return new Vector3D(v.x/d, v.y/d, v.z/d);
     }
     static public Vector3D add(Vector3D v1, Vector3D v2)

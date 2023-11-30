@@ -36,43 +36,67 @@ public class PhysicsProperties {
 
    private void calculateForceRoll(Vector3D n)
     {
-        normalForce = Vector3D.scale(n, Vector3D.dot(n, gravityForce));
-        appliedForce = Vector3D.sub(gravityForce, normalForce);
-        normalForce = Vector3D.scale(normalForce, -1);
-        frictionForce = Vector3D.scale(normalForce, material.getuCoefficient());
+        Vector3D vn = new Vector3D(n);
+
+        normalForce = Vector3D.scale(vn, -Vector3D.dot(n, gravityForce));
+        appliedForce = Vector3D.add(gravityForce, normalForce);
+        //frictionForce = Vector3D.scale(Vector3D.normalized(appliedForce), -material.getuCoefficient() * Vector3D.norm(normalForce));
+
+        frictionForce = new Vector3D(0);
+
+        if (Vector3D.norm(frictionForce) > Vector3D.norm(appliedForce))
+        {
+            frictionForce = new Vector3D(appliedForce);
+        }
     }
     private void calculateForceFly(Vector3D a)
     {
-
+        normalForce = new Vector3D(0);
+        appliedForce = new Vector3D(0);
+        frictionForce = new Vector3D(velocity);
+        Vector3D.scale(frictionForce, -0.1);
     }
-    private void calculateBounce(Vector3D n, Vector3D d)
+    private Vector3D calculateBounce(Vector3D n, Vector3D d)
     {
-        Vector3D vn = Vector3D.scale(n, 2.* Vector3D.dot(d, n));
+        Vector3D vn = new Vector3D(n);
+        Vector3D.scale(vn, 2*Vector3D.dot(n, d));
         Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
-        velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.7);
+        return Vector3D.scale(b, Vector3D.norm(velocity) * 0.2);
     }
     public void calculateAcceleration(Vector3D a, Vector3D n, Vector3D d)
     {
+        Vector3D newVelocity;
+
         gravityForce = a;
 
-        if (n == null && d == null)
+        if (n == null)
         {
             calculateForceFly(a);
+            //System.out.println("Fly");
         }
         // TODO: Improve roll calculation
-        else if (Math.abs(Vector3D.dot(Vector3D.normalized(a), d)) >= 0.999)
-        {
-            calculateForceRoll(n);
-        }
         else
         {
-            calculateBounce(n, d);
+            newVelocity = calculateBounce(n, d);
+
+            if(Vector3D.norm(newVelocity) <= 0.5)
+            {
+                calculateForceRoll(n);
+
+                System.out.println("Roll");
+            }
+
+            //velocity = newVelocity;
+            System.out.println("Bounce");
         }
 
         incidentForce.x = gravityForce.x + normalForce.x + appliedForce.x + frictionForce.x;
-        incidentForce.y = gravityForce.y + normalForce.y + appliedForce.y + frictionForce.y;
+        incidentForce.y = Math.round((gravityForce.y + normalForce.y + appliedForce.y + frictionForce.y) * 1e9) / 1e9;
 
         acceleration = incidentForce;
+
+        System.out.println("Ball acceleration: x=" + acceleration.x + " | y=" + acceleration.y);
+        System.out.println("Ball velocity: x=" + velocity.x + " | y=" + velocity.y);
     }
     public void updateVelocity(double dt)
     {

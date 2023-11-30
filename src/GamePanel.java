@@ -28,7 +28,7 @@ public class GamePanel extends JPanel
     private int xGridInterval;
     private int yGridInterval;
     private double plotScale = 1.0;
-    private Vector3D gravity = new Vector3D(0, -9.81/10., 0);
+    private Vector3D gravity = new Vector3D(0, -9.81, 0);
     private boolean running = false;
 
     private void initPanel()
@@ -47,7 +47,7 @@ public class GamePanel extends JPanel
         this.xGridInterval = (int)(width * graph.getxGridInterval());
         this.yGridInterval = (int)(height * graph.getyGridInterval());
 
-        equation = Equation.createEquation(EquType.SIN);
+        equation = Equation.createEquation(EquType.POLY1);
         equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
         equation.optimizeSize();
 
@@ -55,8 +55,8 @@ public class GamePanel extends JPanel
 
         ball = new Ball[1];
         ball[0] = new Ball(0.1);
-        ball[0].setxPos(0.9);
-        ball[0].setyPos(3.5);
+        ball[0].setxPos(4);
+        ball[0].setyPos(4);
     }
     public void run()
     {
@@ -93,7 +93,7 @@ public class GamePanel extends JPanel
             if (totalElapsedTime_ms >= updateNewInterval)
             {
                 updateNewInterval = totalElapsedTime_ms + updateInterval;
-                update(lastUpdate);
+                update(lastUpdate / 2);
                 lastUpdate = 0;
             }
 
@@ -121,8 +121,8 @@ public class GamePanel extends JPanel
         equation.calculateValues();
 
         for (Ball value : ball) {
-            checkCollision(value);
             value.calculateDisplacement(dt);
+            checkCollision(value);
         }
     }
     // TODO: Need to think of other way to calculate collision, bounce and roll
@@ -173,6 +173,11 @@ public class GamePanel extends JPanel
 
         Vector3D n = null, d = null;
 
+        if (index != -1)
+        {
+            d = Vector3D.normalized(new Vector3D(equation.getX(index) - xBall, equation.getY(index) - yBall, 0));
+        }
+
         // Calculate vector of bounce
         if (Math.sqrt(minDsq) <= r && b.getHitCountdown() <= 0)
         {
@@ -183,11 +188,7 @@ public class GamePanel extends JPanel
 
             double a = dy/dx;
 
-            double x = equation.getX(index);
-            double y = equation.getY(index);
-
-            n = Vector3D.normalized(Vector3D.cross(new Vector3D(1, a, 0), new Vector3D(0, 0, 1)));
-            d = Vector3D.normalized(new Vector3D(x - xBall, y - yBall, 0));
+            n = Vector3D.normalized(Vector3D.cross(new Vector3D(1, a, 0), new Vector3D(0, 0, -1)));
         }
 
         b.physicsProperties.calculateAcceleration(gravity, n, d);
@@ -234,7 +235,7 @@ public class GamePanel extends JPanel
         {
             g2.drawLine(0, i, width, i);
             if (j == 0) { j++; continue;}
-            g2.drawString(""+ j++, xCenter + 10, i - 4);
+            g2.drawString(""+ -j++, xCenter + 10, i - 4);
         }
 
         g2.setColor(functionColor);
