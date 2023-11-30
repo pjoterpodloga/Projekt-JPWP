@@ -61,7 +61,7 @@ public class PhysicsProperties {
         Vector3D vn = new Vector3D(n);
         Vector3D.scale(vn, 2*Vector3D.dot(n, d));
         Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
-        return Vector3D.scale(b, Vector3D.norm(velocity) * 0.2);
+        return Vector3D.scale(b, Vector3D.norm(velocity) * 0.75);
     }
     public void calculateAcceleration(Vector3D a, Vector3D n, Vector3D d)
     {
@@ -72,7 +72,6 @@ public class PhysicsProperties {
         if (n == null)
         {
             calculateForceFly(a);
-            //System.out.println("Fly");
         }
         // TODO: Improve roll calculation
         else
@@ -82,12 +81,9 @@ public class PhysicsProperties {
             if(Vector3D.norm(newVelocity) <= 0.5)
             {
                 calculateForceRoll(n);
-
-                System.out.println("Roll");
             }
 
-            //velocity = newVelocity;
-            System.out.println("Bounce");
+            velocity = newVelocity;
         }
 
         incidentForce.x = gravityForce.x + normalForce.x + appliedForce.x + frictionForce.x;

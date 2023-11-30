@@ -47,7 +47,7 @@ public class GamePanel extends JPanel
         this.xGridInterval = (int)(width * graph.getxGridInterval());
         this.yGridInterval = (int)(height * graph.getyGridInterval());
 
-        equation = Equation.createEquation(EquType.POLY1);
+        equation = Equation.createEquation(EquType.SIN);
         equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
         equation.optimizeSize();
 
