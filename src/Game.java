@@ -9,7 +9,7 @@ public class Game extends JFrame{
     public static final int HEIGHT = 1024;  // Height of window
     public static String NAME = "Szalone wykresy TEST"; // Title of window
 
-    protected static Game Instance; // Instance of game
+    private static Game Instance; // Instance of game
     protected static int lastID = 1; // Last ID of instance
     private final int ID;  // ID of class instance
 
@@ -19,7 +19,7 @@ public class Game extends JFrame{
     //// Public fields ////
 
     //// Singleton of Game class ////
-    protected Game()
+    private Game()
     {
         ID = lastID;
         lastID += 1;
