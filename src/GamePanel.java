@@ -6,8 +6,14 @@ import src.Utilities.Graph;
 import src.Utilities.Timer;
 import src.Utilities.Vector3D;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 
 public class GamePanel extends JPanel
 {
@@ -30,14 +36,54 @@ public class GamePanel extends JPanel
     private double plotScale = 1.0;
     private Vector3D gravity = new Vector3D(0, -9.81, 0);
     private boolean running = false;
+    private GameState currentGameState;
+    private GameState lastGameState;
 
+    private JButton StartStopButton;
+    private BufferedImage StartIcon;
+    private BufferedImage StopIcon;
     private void initPanel()
     {
         this.setSize(new Dimension(plotWidth, plotHeight));
         this.setLocation(0, 0);
+        this.setLayout(null);
+        this.setOpaque(false);
     }
     private void initPeripherals()
     {
+        URL startImgURL = getClass().getResource("../res/StartPrzycisk.png");
+        URL stopImgURL = getClass().getResource("../res/StopPrzycisk.png");
+
+        try {
+            StartIcon = ImageIO.read(startImgURL);
+            StopIcon = ImageIO.read(stopImgURL);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        StartStopButton = new JButton("");
+        StartStopButton.setSize(50, 50);
+        StartStopButton.setLocation(925, 25);
+        StartStopButton.setOpaque(false);
+
+        StartStopButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState == GameState.WAITING)
+                {
+                    currentGameState = GameState.RUNNING;
+                }
+                else if(currentGameState == GameState.RUNNING)
+                {
+                    currentGameState = GameState.FAILED;
+                }
+            }
+        });
+
+        this.add(StartStopButton);
+
         graph = new Graph(-0.1, -0.1, 0.1, 0.1);
 
         this.width = this.getWidth();
@@ -55,12 +101,16 @@ public class GamePanel extends JPanel
 
         ball = new Ball[1];
         ball[0] = new Ball(0.1);
-        ball[0].setxPos(4);
-        ball[0].setyPos(4);
+        ball[0].setResetPos(new Vector3D(4, 4, 0));
+        ball[0].setAcceleration(gravity);
+        ball[0].reset();
     }
     public void run()
     {
         running = true;
+
+        currentGameState = GameState.WAITING;
+        lastGameState = GameState.RUNNING;
 
         initPanel();
         initPeripherals();
@@ -90,10 +140,26 @@ public class GamePanel extends JPanel
             lastElapsedTime_ms = totalElapsedTime_ms;
 
 
+            if(currentGameState == GameState.WAITING)
+            {
+                //disable update
+                lastUpdate = 0;
+            }
+            else if(currentGameState == GameState.RUNNING)
+            {
+                //disable changing equation
+            }
+            else if(currentGameState == GameState.FAILED)
+            {
+                //reset ball
+                ball[0].reset();
+                currentGameState = GameState.WAITING;
+            }
+
             if (totalElapsedTime_ms >= updateNewInterval)
             {
                 updateNewInterval = totalElapsedTime_ms + updateInterval;
-                update(lastUpdate / 2);
+                update(lastUpdate);
                 lastUpdate = 0;
             }
 
@@ -102,7 +168,6 @@ public class GamePanel extends JPanel
                 repaintNewInterval = totalElapsedTime_ms + repaintInterval;
                 repaint();
                 drawCount += 1;
-                //equation.setC(equation.getC() + 0.001);
             }
 
             if (totalElapsedTime_ms >= fpsNewInterval)
@@ -125,10 +190,101 @@ public class GamePanel extends JPanel
             checkCollision(value);
         }
     }
-    // TODO: Need to think of other way to calculate collision, bounce and roll
-    // TODO: Add physics and material properties class
+
     private void checkCollision(Ball b)
     {
+
+        double xBall = b.getxPos(), yBall = b.getyPos();
+        double dsq = -1, minDsq = -1, angle = -1, maxAngle = -1;
+
+        int nearestEquIdx = -1, angleEquIdx = -1;
+
+        Vector3D vn = new Vector3D(0), ballVelocity = b.getVelocityVector();
+
+        for (int equ_it = 1; equ_it < equation.getLength() - 1; equ_it += 1)
+        {
+            vn.x = equation.getX(equ_it) - xBall;
+            vn.y = equation.getY(equ_it) - yBall;
+
+            dsq = Vector3D.dot(vn, vn);
+
+            angle = Math.abs(Vector3D.dot(ballVelocity, vn));
+
+            if (equ_it == 1)
+            {
+                maxAngle = angle;
+                angleEquIdx = equ_it;
+
+                minDsq = dsq;
+                nearestEquIdx = equ_it;
+            }
+
+            if (dsq < minDsq)
+            {
+                minDsq = dsq;
+                nearestEquIdx = equ_it;
+            }
+        }
+
+        int hrange = 250;
+        int equ_it_min = Math.max(1, nearestEquIdx - hrange);
+        int equ_it_max = Math.min(equation.getLength(), nearestEquIdx + hrange);
+
+        Vector3D tmpVN = new Vector3D(0);
+
+        for (int equ_it = equ_it_min; equ_it < equ_it_max; equ_it += 1)
+        {
+            vn.x = equation.getX(equ_it) - xBall;
+            vn.y = equation.getY(equ_it) - yBall;
+
+            angle = Vector3D.dot(ballVelocity, vn);
+
+            if (equ_it == equ_it_min)
+            {
+                maxAngle = angle;
+                angleEquIdx = equ_it;
+
+                tmpVN.x = vn.x;
+                tmpVN.y = vn.y;
+            }
+
+            if (angle > maxAngle)
+            {
+                maxAngle = angle;
+                angleEquIdx = equ_it;
+
+                tmpVN.x = vn.x;
+                tmpVN.y = vn.y;
+            }
+        }
+
+        if (Math.sqrt(minDsq) <= b.getRadius())
+        {
+            maxAngle = maxAngle / (Vector3D.norm(tmpVN)*Vector3D.norm(ballVelocity));
+
+            int idx = angleEquIdx;
+
+            if (maxAngle < 0.97)
+            {
+                idx = nearestEquIdx;
+            }
+
+            double dx = equation.getX(idx + 1) - equation.getX(idx - 1);
+            double dy = equation.getY(idx + 1) - equation.getY(idx - 1);
+
+            Vector3D a = Vector3D.normalized(new Vector3D(dx, dy, 0));
+
+            Vector3D n = Vector3D.cross(a, new Vector3D(0, 0, -1));
+            Vector3D d = Vector3D.normalized(new Vector3D(equation.getX(idx) - xBall, equation.getY(idx) - yBall, 0));
+
+            b.calculateBounce(n, d);
+
+            System.out.println("Nearest Equation Index: " + nearestEquIdx + " | Minimal Distance: " + Math.sqrt(minDsq));
+            System.out.println("Attack angle Index: " + angleEquIdx + " | Attack angle: " + maxAngle);
+            System.out.println("VeloX: " + ballVelocity.x + " | VeloY: " + ballVelocity.y + "\n");
+        }
+
+        /*
         double xBall = b.getxPos(), yBall = b.getyPos();
 
         Vector3D vn = new Vector3D(0);
@@ -189,9 +345,11 @@ public class GamePanel extends JPanel
             double a = dy/dx;
 
             n = Vector3D.normalized(Vector3D.cross(new Vector3D(1, a, 0), new Vector3D(0, 0, -1)));
-        }
 
-        b.physicsProperties.calculateAcceleration(gravity, n, d);
+            b.calculateBounce(n, d);
+        }
+        */
+
     }
     private final Color plotColor = new Color(187, 185, 157);
     private final Color mainGridColor = new Color(0, 0, 0);
@@ -205,7 +363,6 @@ public class GamePanel extends JPanel
     @Override
     public void paintComponent(Graphics g)
     {
-
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
@@ -266,7 +423,16 @@ public class GamePanel extends JPanel
 
         g2.setColor(debugColor);
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
-        g2.drawLine(x, y, x + (int)(ball[0].physicsProperties.getVelocity().x * gridAvg * 0.1), y - (int)(ball[0].physicsProperties.getVelocity().y * gridAvg * 0.1));
+        g2.drawLine(x, y, x + (int)(ball[0].getVelocityVector().x * gridAvg * 0.1), y - (int)(ball[0].getVelocityVector().y * gridAvg * 0.1));
+
+        if (currentGameState == GameState.WAITING)
+        {
+            g2.drawImage(StartIcon, 925, 25, 50, 50, null);
+        }
+        else
+        {
+            g2.drawImage(StopIcon, 925, 25, 50, 50, null);
+        }
 
         g.dispose();
     }

@@ -2,21 +2,26 @@ package src;
 
 import src.Utilities.Vector3D;
 
+import java.util.Vector;
+
 public class Ball {
 
     //// Private fields ////
     private double radius;
     private Vector3D position;
-    public PhysicsProperties physicsProperties;
+    private Vector3D resetPos;
+    private Vector3D velocity;
+    private Vector3D acceleration;
     private int hitCount;
-    private int hitCountdown;
+    private double hitCountdown;
     private boolean stuck;
 
     public Ball()
     {
         radius = 10;
         position = new Vector3D(0);
-        physicsProperties = new PhysicsProperties(1);
+        velocity = new Vector3D(0);
+        acceleration = new Vector3D(0);
 
         hitCountdown = 0;
         hitCount = 0;
@@ -26,7 +31,8 @@ public class Ball {
     {
         radius = r;
         position = new Vector3D(0);
-        physicsProperties = new PhysicsProperties(1);
+        velocity = new Vector3D(0);
+        acceleration = new Vector3D(0);
 
         hitCountdown = 0;
         hitCount = 0;
@@ -34,22 +40,61 @@ public class Ball {
     }
     public void calculateDisplacement(double dt)
     {
-        hitCountdown--;
+        hitCountdown -= dt;
 
-        physicsProperties.updateVelocity(dt);
-
-        Vector3D velocity = physicsProperties.getVelocity();
+        velocity.x += acceleration.x * dt;
+        velocity.y += acceleration.y * dt;
 
         Vector3D displacement = new Vector3D(velocity.x * dt, velocity.y * dt, 0);
+
+        if (stuck)
+        {
+            return;
+        }
 
         position.x += displacement.x;
         position.y += displacement.y;
     }
+    public void calculateBounce(Vector3D n, Vector3D d)
+    {
+        if (Vector3D.norm(velocity) <= 2)
+        {
+            stuck = true;
+            return;
+        }
+
+        if (hitCountdown > 0)
+        {
+            return;
+        }
+
+        Vector3D vn = new Vector3D(n);
+        Vector3D.scale(vn, 2*Vector3D.dot(n, d));
+        Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
+        velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.8);
+
+        hit();
+    }
     public void hit()
     {
         hitCount++;
-        hitCountdown = 3;
+        hitCountdown = 0.2;
     }
+
+    public void reset()
+    {
+        position.x = resetPos.x;
+        position.y = resetPos.y;
+
+        velocity.x = 0;
+        velocity.y = 0;
+
+        hitCount = 0;
+        hitCountdown = 0;
+
+        stuck = false;
+    }
+
     //// Setters ////
     public void setRadius(double r)
     {
@@ -62,6 +107,14 @@ public class Ball {
     public void setyPos(double y)
     {
         position.y = y;
+    }
+    public void setResetPos(Vector3D resPos)
+    {
+        resetPos = resPos;
+    }
+    public void setAcceleration(Vector3D a)
+    {
+        acceleration = a;
     }
 
     //// Getters ////
@@ -77,17 +130,17 @@ public class Ball {
     {
         return position.y;
     }
-    public int getHitCountdown()
+    public double getHitCountdown()
     {
         return hitCountdown;
     }
     public Vector3D getVelocityVector()
     {
-        return physicsProperties.getVelocity();
+        return velocity;
     }
-    public Vector3D getAccelerationVector()
+    public Vector3D getAcceleration()
     {
-        return physicsProperties.getAcceleration();
+        return acceleration;
     }
     public int getHitCount()
     {
