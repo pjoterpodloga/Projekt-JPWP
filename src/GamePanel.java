@@ -429,6 +429,10 @@ public class GamePanel extends JPanel
             {
                 currentGameState = GameState.WAITING;
 
+                collisionDetected = false;
+                outOfBoundsDetected = false;
+                stuckDetected = false;
+
                 System.out.println("Ball state reset to default.\n");
             }
 
