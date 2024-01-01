@@ -28,6 +28,7 @@ public class GamePanel extends JPanel
     private Equation equation;
     private Graph graph;
     private Ball[] ball;
+    private Target target;
     private double framesPerSecond = 0;
     private int width, height;
     private int xCenter, yCenter;
@@ -83,6 +84,8 @@ public class GamePanel extends JPanel
         ball[0].setResetPos(new Vector3D(4, 4, 0));
         ball[0].setAcceleration(gravity);
         ball[0].reset();
+
+        target = new Target(0.5, new Vector3D(0.5,1,0));
 
         URL startImgURL = getClass().getResource("../res/StartPrzycisk.png");
         URL stopImgURL = getClass().getResource("../res/StopPrzycisk.png");
@@ -354,12 +357,17 @@ public class GamePanel extends JPanel
     {
         double totalElapsedTime_ms;
 
+        double winInterval = 5000.;
+        double winNewInterval = winInterval;
+
         double resetInterval = 2500.;
         double resetNewInterval = resetInterval;
 
         double updateInterval = 1.;
         double updateNewInterval = updateInterval;
         double lastUpdate = 0;
+        double timeScale = 1;
+        double totalTimeScale = 0;
 
         double repaintInterval = 1000. / maxFPS;
         double repaintNewInterval = repaintInterval;
@@ -379,9 +387,17 @@ public class GamePanel extends JPanel
 
             if(currentGameState == GameState.WAITING)
             {
-                ball[0].reset();
+                winNewInterval = totalElapsedTime_ms + winInterval;
                 resetNewInterval = resetInterval + totalElapsedTime_ms;
                 lastUpdate = 0;
+                timeScale = 1;
+
+                ball[0].reset();
+
+                collisionDetected = false;
+                outOfBoundsDetected = false;
+                stuckDetected = false;
+                winConditionDetected = false;
 
                 //disable update
                 parameterBSlider.setEnabled(true);
@@ -401,6 +417,7 @@ public class GamePanel extends JPanel
             }
             else if(currentGameState == GameState.RUNNING)
             {
+                winNewInterval = totalElapsedTime_ms + winInterval;
                 resetNewInterval = resetInterval + totalElapsedTime_ms;
 
                 //disable changing equation
@@ -421,25 +438,43 @@ public class GamePanel extends JPanel
             }
             else if(currentGameState == GameState.FAILED)
             {
+                winNewInterval = totalElapsedTime_ms + winInterval;
                 updateNewInterval = totalElapsedTime_ms + updateInterval;
                 lastUpdate = 0;
+            }
+            else if(currentGameState == GameState.WON)
+            {
+                resetNewInterval = resetInterval + totalElapsedTime_ms;
             }
 
             if (totalElapsedTime_ms >= resetNewInterval)
             {
                 currentGameState = GameState.WAITING;
 
-                collisionDetected = false;
-                outOfBoundsDetected = false;
-                stuckDetected = false;
-
                 System.out.println("Ball state reset to default.\n");
+            }
+
+            if (totalElapsedTime_ms >= winNewInterval)
+            {
+                currentGameState = GameState.WAITING;
             }
 
             if (totalElapsedTime_ms >= updateNewInterval)
             {
                 updateNewInterval = totalElapsedTime_ms + updateInterval;
-                update(lastUpdate);
+                update(lastUpdate * timeScale);
+
+                if (currentGameState == GameState.WON)
+                {
+                    totalTimeScale += lastUpdate;
+                    timeScale = Math.exp(-totalTimeScale);
+                }
+
+                if (timeScale <= 0.1)
+                {
+                    timeScale = 0.1;
+                }
+
                 lastUpdate = 0;
             }
 
@@ -458,6 +493,8 @@ public class GamePanel extends JPanel
             }
         }
     }
+
+    private boolean winConditionDetected;
     private boolean stuckDetected;
     private boolean outOfBoundsDetected;
     private boolean collisionDetected;
@@ -473,11 +510,20 @@ public class GamePanel extends JPanel
         }
 
         for (Ball b : ball) {
+
             stuckDetected = b.calculateDisplacement(dt);
+            winConditionDetected = checkWinCondition(b);
             outOfBoundsDetected = checkBounds(b);
             collisionDetected = checkCollision(b);
 
-            if (stuckDetected || outOfBoundsDetected)
+            if (winConditionDetected)
+            {
+                currentGameState = GameState.WON;
+
+                System.out.println("Ball achieved target.\n");
+
+            }
+            else if ((stuckDetected || outOfBoundsDetected) && currentGameState != GameState.WON)
             {
                 currentGameState = GameState.FAILED;
 
@@ -486,6 +532,14 @@ public class GamePanel extends JPanel
                 break;
             }
         }
+    }
+
+    private boolean checkWinCondition(Ball b)
+    {
+        double x = b.getxPos() - target.getPosX(), y = b.getyPos() - target.getPosY();
+        double d = Math.sqrt(x*x + y*y);
+
+        return target.getRadius() > d;
     }
 
     private boolean checkBounds(Ball b)
@@ -596,12 +650,15 @@ public class GamePanel extends JPanel
     private final Color subGridColor = new Color(61, 57, 57);
     private final Color functionColor = new Color(33, 77, 157);
     private final Color ballColor = new Color(215, 40, 40);
+    private final Color targetFillColor = new Color(20, 180, 232, 155);
+    private final Color targetEdgeColor = new Color(20, 112, 232, 155);
     private final Color debugColor = new Color(19, 150, 23);
     private final Font parameterFont = new Font(Font.SANS_SERIF, Font.BOLD, 20);
     private final Font debugFont = new Font(Font.SANS_SERIF, Font.BOLD, 10);
     private final int mainGridSize = 3;
     private final int subGridSize = 2;
     private final int functionSize = 2;
+    private final int targetEdgeSize = 3;
     @Override
     public void paint(Graphics g)
     {
@@ -664,20 +721,31 @@ public class GamePanel extends JPanel
         }
 
         double gridAvg = Math.sqrt(xGridInterval * yGridInterval);
-        int d = (int)(ball[0].getRadius() * gridAvg);
-        int x = (int)(ball[0].getxPos() * xGridInterval + xCenter), y = (int)(yCenter - ball[0].getyPos() * yGridInterval);
+        int rBall = (int)(ball[0].getRadius() * gridAvg);
+        int xBall = (int)(ball[0].getxPos() * xGridInterval + xCenter), yBall = (int)(yCenter - ball[0].getyPos() * yGridInterval);
 
         g2.setColor(ballColor);
 
         if (!outOfBoundsDetected)
         {
-            g2.fillOval(x - d, y - d, 2 * d, 2 * d);
+            g2.fillOval(xBall - rBall, yBall - rBall, 2 * rBall, 2 * rBall);
         }
+
+        int rTarget = (int)(target.getRadius() * gridAvg);
+        int xTarget = (int)(target.getPosX() * xGridInterval + xCenter);
+        int yTarget = (int)(yCenter - target.getPosY() * yGridInterval);
+
+        g2.setColor(targetFillColor);
+        g2.fillOval(xTarget - rTarget, yTarget - rTarget, 2 * rTarget, 2 * rTarget);
+
+        g2.setColor(targetEdgeColor);
+        g2.setStroke(new BasicStroke(targetEdgeSize));
+        g2.drawOval(xTarget - rTarget, yTarget - rTarget, 2 * rTarget, 2 * rTarget);
 
         g2.setColor(debugColor);
         g2.setFont(debugFont);
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
-        g2.drawLine(x, y, x + (int)(ball[0].getVelocityVector().x * gridAvg * 0.1), y - (int)(ball[0].getVelocityVector().y * gridAvg * 0.1));
+        g2.drawLine(xBall, yBall, xBall + (int)(ball[0].getVelocityVector().x * gridAvg * 0.1), yBall - (int)(ball[0].getVelocityVector().y * gridAvg * 0.1));
 
         if (currentGameState == GameState.WAITING)
         {
