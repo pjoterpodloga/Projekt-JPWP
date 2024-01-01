@@ -8,7 +8,7 @@ public class Ball {
 
     //// Private fields ////
     private double radius;
-    private Vector3D position;
+    private final Vector3D position;
     private Vector3D resetPos;
     private Vector3D velocity;
     private Vector3D acceleration;
@@ -38,7 +38,7 @@ public class Ball {
         hitCount = 0;
         stuck = false;
     }
-    public void calculateDisplacement(double dt)
+    public boolean calculateDisplacement(double dt)
     {
         hitCountdown -= dt;
 
@@ -47,38 +47,37 @@ public class Ball {
 
         Vector3D displacement = new Vector3D(velocity.x * dt, velocity.y * dt, 0);
 
-        if (stuck)
+        if (!stuck)
         {
-            return;
+            position.x += displacement.x;
+            position.y += displacement.y;
         }
 
-        position.x += displacement.x;
-        position.y += displacement.y;
+        return stuck;
     }
-    public void calculateBounce(Vector3D n, Vector3D d)
+    public boolean calculateBounce(Vector3D n, Vector3D d)
     {
-        if (Vector3D.norm(velocity) <= 2)
+        if (Vector3D.norm(velocity) <= 0.1)
         {
             stuck = true;
-            return;
         }
 
-        if (hitCountdown > 0)
+        if (!stuck && hitCountdown <= 0)
         {
-            return;
+            Vector3D vn = new Vector3D(n);
+            Vector3D.scale(vn, 2 * Vector3D.dot(n, d));
+            Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
+            velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.8);
+
+            hit();
         }
 
-        Vector3D vn = new Vector3D(n);
-        Vector3D.scale(vn, 2*Vector3D.dot(n, d));
-        Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
-        velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.8);
-
-        hit();
+        return stuck;
     }
     public void hit()
     {
         hitCount++;
-        hitCountdown = 0.2;
+        hitCountdown = 0.02;
     }
 
     public void reset()
@@ -130,6 +129,14 @@ public class Ball {
     {
         return position.y;
     }
+    public int getHitCount()
+    {
+        return hitCount;
+    }
+    public boolean isStuck()
+    {
+        return stuck;
+    }
     public double getHitCountdown()
     {
         return hitCountdown;
@@ -141,9 +148,5 @@ public class Ball {
     public Vector3D getAcceleration()
     {
         return acceleration;
-    }
-    public int getHitCount()
-    {
-        return hitCount;
     }
 }

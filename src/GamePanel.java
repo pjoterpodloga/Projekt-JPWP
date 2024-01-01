@@ -8,6 +8,10 @@ import src.Utilities.Vector3D;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,24 +31,26 @@ public class GamePanel extends JPanel
     private Graph graph;
     private Ball[] ball;
     private double framesPerSecond = 0;
-    private int width;
-    private int height;
-    private int xCenter;
-    private int yCenter;
-    private int xGridInterval;
-    private int yGridInterval;
-    private double plotScale = 1.0;
-    private Vector3D gravity = new Vector3D(0, -9.81, 0);
+    private int width, height;
+    private int xCenter, yCenter;
+    private int xGridInterval, yGridInterval;
+    private int xMinBound, xMaxBound, yMinBound, yMaxBound;
+    private final double plotScale = 1.0;
+    private final Vector3D gravity = new Vector3D(0, -9.81, 0);
     private boolean running = false;
     private GameState currentGameState;
     private GameState lastGameState;
 
+    private JSlider parameterASlider, parameterBSlider, parameterCSlider;
+    private JSlider parameterDSlider, parameterESlider, parameterFSlider;
+    private JSlider parameterGSlider;
+
     private JButton StartStopButton;
-    private BufferedImage StartIcon;
-    private BufferedImage StopIcon;
+    private BufferedImage StartIcon, StopIcon;
+
     private void initPanel()
     {
-        this.setSize(new Dimension(plotWidth, plotHeight));
+        this.setSize(new Dimension(1280, plotHeight));
         this.setLocation(0, 0);
         this.setLayout(null);
         this.setOpaque(false);
@@ -82,18 +88,120 @@ public class GamePanel extends JPanel
             }
         });
 
+        parameterASlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterASlider.setLocation(1070, 0);
+        parameterASlider.setSize(200, 50);
+        parameterASlider.setVisible(true);
+
+        parameterASlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setA(value);
+            }
+        });
+
+        parameterBSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterBSlider.setLocation(1070, 50);
+        parameterBSlider.setSize(200, 50);
+        parameterBSlider.setVisible(true);
+
+        parameterBSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setB(value);
+            }
+        });
+
+        parameterCSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterCSlider.setLocation(1070, 100);
+        parameterCSlider.setSize(200, 50);
+        parameterCSlider.setVisible(true);
+
+        parameterCSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setC(value);
+            }
+        });
+
+        parameterDSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterDSlider.setLocation(1070, 150);
+        parameterDSlider.setSize(200, 50);
+        parameterDSlider.setVisible(true);
+
+        parameterDSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setD(value);
+            }
+        });
+
+        parameterESlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterESlider.setLocation(1070, 200);
+        parameterESlider.setSize(200, 50);
+        parameterESlider.setVisible(true);
+
+        parameterESlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setE(value);
+            }
+        });
+
+        parameterFSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterFSlider.setLocation(1070, 250);
+        parameterFSlider.setSize(200, 50);
+        parameterFSlider.setVisible(true);
+
+        parameterFSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setF(value);
+            }
+        });
+
+        parameterGSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
+        parameterGSlider.setLocation(1070, 300);
+        parameterGSlider.setSize(200, 50);
+        parameterGSlider.setVisible(true);
+
+        parameterGSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setG(value);
+            }
+        });
+
         this.add(StartStopButton);
+        this.add(parameterASlider);
+        this.add(parameterBSlider);
+        this.add(parameterCSlider);
+        this.add(parameterDSlider);
+        this.add(parameterESlider);
+        this.add(parameterFSlider);
+        this.add(parameterGSlider);
 
         graph = new Graph(-0.1, -0.1, 0.1, 0.1);
 
-        this.width = this.getWidth();
-        this.height = this.getHeight();
+        this.width = plotWidth;
+        this.height = plotHeight;
         this.xCenter = (int)(width * (0.5 + graph.getdx()));
         this.yCenter = (int)(height * (1. - (0.5 + graph.getdy())));
         this.xGridInterval = (int)(width * graph.getxGridInterval());
         this.yGridInterval = (int)(height * graph.getyGridInterval());
+        this.xMinBound = (int)((width * (-0.5 - graph.getdx())) / xGridInterval);
+        this.xMaxBound = (width/xGridInterval + xMinBound);
+        this.yMinBound = (int)((height * (-0.5 - graph.getdy())) / yGridInterval);
+        this.yMaxBound = (height/yGridInterval + yMinBound);
 
-        equation = Equation.createEquation(EquType.SIN);
+        equation = Equation.createEquation(EquType.POLY2);
         equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
         equation.optimizeSize();
 
@@ -120,6 +228,9 @@ public class GamePanel extends JPanel
     {
         double totalElapsedTime_ms;
 
+        double resetInterval = 2500.;
+        double resetNewInterval = resetInterval;
+
         double updateInterval = 1.;
         double updateNewInterval = updateInterval;
         double lastUpdate = 0;
@@ -142,17 +253,40 @@ public class GamePanel extends JPanel
 
             if(currentGameState == GameState.WAITING)
             {
-                //disable update
+                ball[0].reset();
+                resetNewInterval = resetInterval + totalElapsedTime_ms;
                 lastUpdate = 0;
+
+                //disable update
+                parameterBSlider.setEnabled(true);
+                parameterASlider.setEnabled(true);
+                parameterCSlider.setEnabled(true);
+                parameterDSlider.setEnabled(true);
+                parameterESlider.setEnabled(true);
+                parameterFSlider.setEnabled(true);
+                parameterGSlider.setEnabled(true);
             }
             else if(currentGameState == GameState.RUNNING)
             {
+                resetNewInterval = resetInterval + totalElapsedTime_ms;
+
                 //disable changing equation
+                parameterASlider.setEnabled(false);
+                parameterBSlider.setEnabled(false);
+                parameterCSlider.setEnabled(false);
+                parameterDSlider.setEnabled(false);
+                parameterESlider.setEnabled(false);
+                parameterFSlider.setEnabled(false);
+                parameterGSlider.setEnabled(false);
             }
             else if(currentGameState == GameState.FAILED)
             {
-                //reset ball
-                ball[0].reset();
+                updateNewInterval = totalElapsedTime_ms + updateInterval;
+                lastUpdate = 0;
+            }
+
+            if (totalElapsedTime_ms >= resetNewInterval)
+            {
                 currentGameState = GameState.WAITING;
             }
 
@@ -180,18 +314,41 @@ public class GamePanel extends JPanel
 
         clean();
     }
+    private boolean stuckDetected;
+    private boolean outOfBoundsDetected;
+    private boolean collisionDetected;
+
     private void update(double dt)
     {
         equation.optimizeSize();
         equation.calculateValues();
 
-        for (Ball value : ball) {
-            value.calculateDisplacement(dt);
-            checkCollision(value);
+        if (dt == 0)
+        {
+            return;
+        }
+
+        for (Ball b : ball) {
+            stuckDetected = b.calculateDisplacement(dt);
+            outOfBoundsDetected = checkBounds(b);
+            collisionDetected = checkCollision(b);
+
+            if (stuckDetected || outOfBoundsDetected)
+            {
+                currentGameState = GameState.FAILED;
+                break;
+            }
         }
     }
 
-    private void checkCollision(Ball b)
+    private boolean checkBounds(Ball b)
+    {
+        double xBall = b.getxPos(), yBall = b.getyPos();
+
+        return xBall < xMinBound || xBall > xMaxBound || yBall < yMinBound || yBall > yMaxBound;
+    }
+
+    private boolean checkCollision(Ball b)
     {
 
         double xBall = b.getxPos(), yBall = b.getyPos();
@@ -284,86 +441,24 @@ public class GamePanel extends JPanel
             System.out.println("VeloX: " + ballVelocity.x + " | VeloY: " + ballVelocity.y + "\n");
         }
 
-        /*
-        double xBall = b.getxPos(), yBall = b.getyPos();
-
-        Vector3D vn = new Vector3D(0);
-
-        double r = b.getRadius(), dsq, minDsq = r * r + 0.5;
-        double maxAttackAngle = 0, aaEpsilon = 0.999;
-        int indexAA = -1, indexClosest = -1;
-
-        Vector3D veloVectorBall = Vector3D.normalized(b.getVelocityVector());
-
-        for (int i = 1; i < equation.getLength() - 1; i += 1)
-        {
-            vn.x = equation.getX(i) - xBall;
-            vn.y = equation.getY(i) - yBall;
-
-            dsq = Vector3D.dot(vn, vn);
-
-            double attackAngle = Vector3D.dot(veloVectorBall, Vector3D.normalized(vn));
-
-            if (maxAttackAngle <= attackAngle)
-            {
-                maxAttackAngle = attackAngle;
-                if (maxAttackAngle >= aaEpsilon)
-                {
-                    indexAA = i;
-                }
-            }
-
-            if (minDsq > dsq)
-            {
-                minDsq= dsq;
-                indexClosest = i;
-            }
-        }
-
-        int index = indexAA;
-
-        if (indexAA == -1)
-        {
-            index = indexClosest;
-        }
-
-        Vector3D n = null, d = null;
-
-        if (index != -1)
-        {
-            d = Vector3D.normalized(new Vector3D(equation.getX(index) - xBall, equation.getY(index) - yBall, 0));
-        }
-
-        // Calculate vector of bounce
-        if (Math.sqrt(minDsq) <= r && b.getHitCountdown() <= 0)
-        {
-            b.hit();
-
-            double dx = equation.getX(index + 1) - equation.getX(index - 1);
-            double dy = equation.getY(index + 1) - equation.getY(index - 1);
-
-            double a = dy/dx;
-
-            n = Vector3D.normalized(Vector3D.cross(new Vector3D(1, a, 0), new Vector3D(0, 0, -1)));
-
-            b.calculateBounce(n, d);
-        }
-        */
-
+        return b.isStuck();
     }
+
     private final Color plotColor = new Color(187, 185, 157);
     private final Color mainGridColor = new Color(0, 0, 0);
     private final Color subGridColor = new Color(61, 57, 57);
     private final Color functionColor = new Color(33, 77, 157);
     private final Color ballColor = new Color(215, 40, 40);
     private final Color debugColor = new Color(19, 150, 23);
-    private int mainGridSize = 3;
-    private int subGridSize = 2;
-    private  int functionSize = 2;
+    private final Font parameterFont = new Font(Font.SANS_SERIF, 4, 20);
+    private final Font debugFont = new Font(Font.SANS_SERIF, 4, 10);
+    private final int mainGridSize = 3;
+    private final int subGridSize = 2;
+    private final int functionSize = 2;
     @Override
-    public void paintComponent(Graphics g)
+    public void paint(Graphics g)
     {
-        super.paintComponent(g);
+        super.paint(g);
 
         Graphics2D g2 = (Graphics2D) g;
 
@@ -395,6 +490,13 @@ public class GamePanel extends JPanel
             g2.drawString(""+ -j++, xCenter + 10, i - 4);
         }
 
+        g2.setFont(parameterFont);
+
+        for(int i = 0; i < 7; i += 1)
+        {
+            g2.drawString("" + (char)(65 + i) + ": " + equation.getParameter(i), 1010, 50 * (i + 1) - 20);
+        }
+
         g2.setColor(functionColor);
         g2.setStroke(new BasicStroke(functionSize));
 
@@ -419,9 +521,14 @@ public class GamePanel extends JPanel
         int x = (int)(ball[0].getxPos() * xGridInterval + xCenter), y = (int)(yCenter - ball[0].getyPos() * yGridInterval);
 
         g2.setColor(ballColor);
-        g2.fillOval(x - d, y - d, 2*d, 2*d);
+
+        if (!outOfBoundsDetected)
+        {
+            g2.fillOval(x - d, y - d, 2 * d, 2 * d);
+        }
 
         g2.setColor(debugColor);
+        g2.setFont(debugFont);
         g2.drawString("FPS: " + framesPerSecond, 0, 10);
         g2.drawLine(x, y, x + (int)(ball[0].getVelocityVector().x * gridAvg * 0.1), y - (int)(ball[0].getVelocityVector().y * gridAvg * 0.1));
 

@@ -6,8 +6,8 @@ public class Timer {
     private long tickCounter = 0;
     private long elapsedTicks;
     private long elapsedTime_ns;
-    private long ticks;
-    private long nsPerTicks;
+    private final long ticks;
+    private final long nsPerTicks;
     private long lastTime = 0;
     private long totalElapsedTime = 0;
 

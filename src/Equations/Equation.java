@@ -88,6 +88,21 @@ public abstract class Equation {
     {
         return G;
     }
+    final public double getParameter(int i)
+    {
+        double returnParameter = switch(i) {
+            case 0 -> getA();
+            case 1 -> getB();
+            case 2 -> getC();
+            case 3 -> getD();
+            case 4 -> getE();
+            case 5 -> getF();
+            case 6 -> getG();
+            default -> 0;
+        };
+
+        return returnParameter;
+    }
     final public int getLength()
     {
         return this.length;
