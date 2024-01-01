@@ -2,7 +2,6 @@ package src;
 
 import src.Equations.EquType;
 import src.Equations.Equation;
-import src.Equations.Poly1Equ;
 import src.Utilities.Graph;
 import src.Utilities.Timer;
 import src.Utilities.Vector3D;
@@ -454,8 +453,6 @@ public class GamePanel extends JPanel
                 drawCount = 0;
             }
         }
-
-        clean();
     }
     private boolean stuckDetected;
     private boolean outOfBoundsDetected;
@@ -640,7 +637,7 @@ public class GamePanel extends JPanel
 
         for(int i = 0; i < 7; i += 1)
         {
-            g2.drawString("" + (char)(65 + i) + ": " + equation.getParameter(i), 1010, 50 * (i + 1) - 20);
+            g2.drawString((char)(65 + i) + ": " + equation.getParameter(i), 1010, 50 * (i + 1) - 20);
         }
 
         g2.setColor(functionColor);
@@ -688,12 +685,6 @@ public class GamePanel extends JPanel
         }
 
         g.dispose();
-    }
-
-    //// Private methods ////
-    private void clean()
-    {
-
     }
 
 }

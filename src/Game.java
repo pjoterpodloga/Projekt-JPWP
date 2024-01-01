@@ -1,18 +1,13 @@
 package src;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.net.URL;
 
 public class Game extends JFrame{
 
     //// Window constants ////
     public static final int WIDTH = 1280;   // Width of window
     public static final int HEIGHT = 1024;  // Height of window
-    public static String NAME = "Szalone wykresy TEST"; // Title of window
+    public static final String NAME = "Szalone wykresy TEST"; // Title of window
 
     private static Game Instance; // Instance of game
     protected static int lastID = 1; // Last ID of instance
