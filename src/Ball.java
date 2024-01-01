@@ -2,8 +2,6 @@ package src;
 
 import src.Utilities.Vector3D;
 
-import java.util.Vector;
-
 public class Ball {
 
     //// Private fields ////
@@ -57,7 +55,7 @@ public class Ball {
     }
     public boolean calculateBounce(Vector3D n, Vector3D d)
     {
-        if (Vector3D.norm(velocity) <= 0.1)
+        if (Vector3D.norm(velocity) <= 0.05)
         {
             stuck = true;
         }
@@ -67,7 +65,7 @@ public class Ball {
             Vector3D vn = new Vector3D(n);
             Vector3D.scale(vn, 2 * Vector3D.dot(n, d));
             Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
-            velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.8);
+            velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.85);
 
             hit();
         }

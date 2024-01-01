@@ -2,6 +2,7 @@ package src;
 
 import src.Equations.EquType;
 import src.Equations.Equation;
+import src.Equations.Poly1Equ;
 import src.Utilities.Graph;
 import src.Utilities.Timer;
 import src.Utilities.Vector3D;
@@ -10,8 +11,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -45,6 +44,9 @@ public class GamePanel extends JPanel
     private JSlider parameterDSlider, parameterESlider, parameterFSlider;
     private JSlider parameterGSlider;
 
+    private JButton poly1Button, poly2Button, poly3Button, poly4Button;
+    private JButton sinButton, expButton;
+
     private JButton StartStopButton;
     private BufferedImage StartIcon, StopIcon;
 
@@ -57,136 +59,6 @@ public class GamePanel extends JPanel
     }
     private void initPeripherals()
     {
-        URL startImgURL = getClass().getResource("../res/StartPrzycisk.png");
-        URL stopImgURL = getClass().getResource("../res/StopPrzycisk.png");
-
-        try {
-            StartIcon = ImageIO.read(startImgURL);
-            StopIcon = ImageIO.read(stopImgURL);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        StartStopButton = new JButton("");
-        StartStopButton.setSize(50, 50);
-        StartStopButton.setLocation(925, 25);
-        StartStopButton.setOpaque(false);
-
-        StartStopButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-
-                if (currentGameState == GameState.WAITING)
-                {
-                    currentGameState = GameState.RUNNING;
-                }
-                else if(currentGameState == GameState.RUNNING)
-                {
-                    currentGameState = GameState.FAILED;
-                }
-            }
-        });
-
-        parameterASlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterASlider.setLocation(1070, 0);
-        parameterASlider.setSize(200, 50);
-        parameterASlider.setVisible(true);
-
-        parameterASlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setA(value);
-            }
-        });
-
-        parameterBSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterBSlider.setLocation(1070, 50);
-        parameterBSlider.setSize(200, 50);
-        parameterBSlider.setVisible(true);
-
-        parameterBSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setB(value);
-            }
-        });
-
-        parameterCSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterCSlider.setLocation(1070, 100);
-        parameterCSlider.setSize(200, 50);
-        parameterCSlider.setVisible(true);
-
-        parameterCSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setC(value);
-            }
-        });
-
-        parameterDSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterDSlider.setLocation(1070, 150);
-        parameterDSlider.setSize(200, 50);
-        parameterDSlider.setVisible(true);
-
-        parameterDSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setD(value);
-            }
-        });
-
-        parameterESlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterESlider.setLocation(1070, 200);
-        parameterESlider.setSize(200, 50);
-        parameterESlider.setVisible(true);
-
-        parameterESlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setE(value);
-            }
-        });
-
-        parameterFSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterFSlider.setLocation(1070, 250);
-        parameterFSlider.setSize(200, 50);
-        parameterFSlider.setVisible(true);
-
-        parameterFSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setF(value);
-            }
-        });
-
-        parameterGSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, 0);
-        parameterGSlider.setLocation(1070, 300);
-        parameterGSlider.setSize(200, 50);
-        parameterGSlider.setVisible(true);
-
-        parameterGSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double value = ((JSlider) e.getSource()).getValue() / 10.;
-                equation.setG(value);
-            }
-        });
-
-        this.add(StartStopButton);
-        this.add(parameterASlider);
-        this.add(parameterBSlider);
-        this.add(parameterCSlider);
-        this.add(parameterDSlider);
-        this.add(parameterESlider);
-        this.add(parameterFSlider);
-        this.add(parameterGSlider);
 
         graph = new Graph(-0.1, -0.1, 0.1, 0.1);
 
@@ -212,6 +84,261 @@ public class GamePanel extends JPanel
         ball[0].setResetPos(new Vector3D(4, 4, 0));
         ball[0].setAcceleration(gravity);
         ball[0].reset();
+
+        URL startImgURL = getClass().getResource("../res/StartPrzycisk.png");
+        URL stopImgURL = getClass().getResource("../res/StopPrzycisk.png");
+
+        try {
+            StartIcon = ImageIO.read(startImgURL);
+            StopIcon = ImageIO.read(stopImgURL);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        StartStopButton = new JButton("");
+        StartStopButton.setSize(50, 50);
+        StartStopButton.setLocation(925, 25);
+        StartStopButton.setOpaque(false);
+
+        StartStopButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState == GameState.WAITING)
+                {
+                    currentGameState = GameState.RUNNING;
+                }
+                else if(currentGameState == GameState.RUNNING || currentGameState == GameState.FAILED)
+                {
+                    currentGameState = GameState.WAITING;
+                }
+            }
+        });
+
+        parameterASlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getA() * 10));
+        parameterASlider.setLocation(1070, 0);
+        parameterASlider.setSize(200, 50);
+        parameterASlider.setVisible(true);
+
+        parameterASlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setA(value);
+            }
+        });
+
+        parameterBSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getB() * 10));
+        parameterBSlider.setLocation(1070, 50);
+        parameterBSlider.setSize(200, 50);
+        parameterBSlider.setVisible(true);
+
+        parameterBSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setB(value);
+            }
+        });
+
+        parameterCSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getC() * 10));
+        parameterCSlider.setLocation(1070, 100);
+        parameterCSlider.setSize(200, 50);
+        parameterCSlider.setVisible(true);
+
+        parameterCSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setC(value);
+            }
+        });
+
+        parameterDSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getD() * 10));
+        parameterDSlider.setLocation(1070, 150);
+        parameterDSlider.setSize(200, 50);
+        parameterDSlider.setVisible(true);
+
+        parameterDSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setD(value);
+            }
+        });
+
+        parameterESlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getE() * 10));
+        parameterESlider.setLocation(1070, 200);
+        parameterESlider.setSize(200, 50);
+        parameterESlider.setVisible(true);
+
+        parameterESlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setE(value);
+            }
+        });
+
+        parameterFSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getF() * 10));
+        parameterFSlider.setLocation(1070, 250);
+        parameterFSlider.setSize(200, 50);
+        parameterFSlider.setVisible(true);
+
+        parameterFSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setF(value);
+            }
+        });
+
+        parameterGSlider = new JSlider(JSlider.HORIZONTAL, -50, 50, (int)(equation.getG() * 10));
+        parameterGSlider.setLocation(1070, 300);
+        parameterGSlider.setSize(200, 50);
+        parameterGSlider.setVisible(true);
+
+        parameterGSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double value = ((JSlider) e.getSource()).getValue() / 10.;
+                equation.setG(value);
+            }
+        });
+
+        poly1Button = new JButton();
+        poly1Button.setSize(270, 50);
+        poly1Button.setText("Ax^1 + B");
+        poly1Button.setLocation(1005, 350);
+        poly1Button.setVisible(true);
+
+        poly1Button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState != GameState.WAITING)
+                    return;
+
+                equation = Equation.createEquation(EquType.POLY1);
+                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
+                equation.optimizeSize();
+            }
+        });
+
+        poly2Button = new JButton();
+        poly2Button.setSize(270, 50);
+        poly2Button.setText("Ax^2 + Bx^1 + C");
+        poly2Button.setLocation(1005, 400);
+        poly2Button.setVisible(true);
+
+        poly2Button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState != GameState.WAITING)
+                    return;
+
+                equation = Equation.createEquation(EquType.POLY2);
+                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
+                equation.optimizeSize();
+            }
+        });
+
+        poly3Button = new JButton();
+        poly3Button.setSize(270, 50);
+        poly3Button.setText("Ax^3 + Bx^2 + Cx^1 + D");
+        poly3Button.setLocation(1005, 450);
+        poly3Button.setVisible(true);
+
+        poly3Button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState != GameState.WAITING)
+                    return;
+
+                equation = Equation.createEquation(EquType.POLY3);
+                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
+                equation.optimizeSize();
+            }
+        });
+
+        poly4Button = new JButton();
+        poly4Button.setSize(270, 50);
+        poly4Button.setText("Ax^4 + Bx^3 + Cx^2 + Dx^1 + 1");
+        poly4Button.setLocation(1005, 450);
+        poly4Button.setVisible(true);
+
+        poly4Button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState != GameState.WAITING)
+                    return;
+
+                equation = Equation.createEquation(EquType.POLY4);
+                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) / xGridInterval);
+                equation.optimizeSize();
+            }
+        });
+
+        sinButton = new JButton();
+        sinButton.setSize(270, 50);
+        sinButton.setText("Asin(2pi*(Bx - C)) + D");
+        sinButton.setLocation(1005, 500);
+        sinButton.setVisible(true);
+
+        sinButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (currentGameState != GameState.WAITING)
+                    return;
+
+                equation = Equation.createEquation(EquType.SIN);
+                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) / xGridInterval);
+                equation.optimizeSize();
+            }
+        });
+
+
+        expButton = new JButton();
+        expButton.setSize(270, 50);
+        expButton.setText("Ae^(Bx)+C");
+        expButton.setLocation(1005, 550);
+        expButton.setVisible(true);
+
+        expButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                equation = Equation.createEquation(EquType.EXP);
+                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) / xGridInterval);
+                equation.optimizeSize();
+            }
+        });
+
+        this.add(StartStopButton);
+        this.add(parameterASlider);
+        this.add(parameterBSlider);
+        this.add(parameterCSlider);
+        this.add(parameterDSlider);
+        this.add(parameterESlider);
+        this.add(parameterFSlider);
+        this.add(parameterGSlider);
+        this.add(poly1Button);
+        this.add(poly2Button);
+        this.add(poly3Button);
+        this.add(poly4Button);
+        this.add(sinButton);
+        this.add(expButton);
     }
     public void run()
     {
@@ -265,6 +392,13 @@ public class GamePanel extends JPanel
                 parameterESlider.setEnabled(true);
                 parameterFSlider.setEnabled(true);
                 parameterGSlider.setEnabled(true);
+
+                poly1Button.setEnabled(true);
+                poly2Button.setEnabled(true);
+                poly3Button.setEnabled(true);
+                poly4Button.setEnabled(true);
+                sinButton.setEnabled(true);
+                expButton.setEnabled(true);
             }
             else if(currentGameState == GameState.RUNNING)
             {
@@ -278,6 +412,13 @@ public class GamePanel extends JPanel
                 parameterESlider.setEnabled(false);
                 parameterFSlider.setEnabled(false);
                 parameterGSlider.setEnabled(false);
+
+                poly1Button.setEnabled(false);
+                poly2Button.setEnabled(false);
+                poly3Button.setEnabled(false);
+                poly4Button.setEnabled(false);
+                sinButton.setEnabled(false);
+                expButton.setEnabled(false);
             }
             else if(currentGameState == GameState.FAILED)
             {
@@ -288,6 +429,8 @@ public class GamePanel extends JPanel
             if (totalElapsedTime_ms >= resetNewInterval)
             {
                 currentGameState = GameState.WAITING;
+
+                System.out.println("Ball state reset to default.\n");
             }
 
             if (totalElapsedTime_ms >= updateNewInterval)
@@ -336,6 +479,9 @@ public class GamePanel extends JPanel
             if (stuckDetected || outOfBoundsDetected)
             {
                 currentGameState = GameState.FAILED;
+
+                System.out.println("Ball is stuck or out of bounds.\n");
+
                 break;
             }
         }
@@ -450,8 +596,8 @@ public class GamePanel extends JPanel
     private final Color functionColor = new Color(33, 77, 157);
     private final Color ballColor = new Color(215, 40, 40);
     private final Color debugColor = new Color(19, 150, 23);
-    private final Font parameterFont = new Font(Font.SANS_SERIF, 4, 20);
-    private final Font debugFont = new Font(Font.SANS_SERIF, 4, 10);
+    private final Font parameterFont = new Font(Font.SANS_SERIF, Font.BOLD, 20);
+    private final Font debugFont = new Font(Font.SANS_SERIF, Font.BOLD, 10);
     private final int mainGridSize = 3;
     private final int subGridSize = 2;
     private final int functionSize = 2;
@@ -477,13 +623,13 @@ public class GamePanel extends JPanel
         g2.setColor(subGridColor);
         g2.setStroke(new BasicStroke(subGridSize));
 
-        for(int i = xCenter % xGridInterval, j = -xCenter / xGridInterval; i <= width; i += xGridInterval)
+        for(int i = xCenter % xGridInterval, j = -xCenter / xGridInterval; i < width; i += xGridInterval)
         {
             g2.drawLine(i, 0, i, height);
             g2.drawString(""+ j++, i + 4, yCenter + 14);
         }
 
-        for(int i = yCenter % yGridInterval, j = -yCenter / yGridInterval; i <= width; i += yGridInterval)
+        for(int i = yCenter % yGridInterval, j = -yCenter / yGridInterval; i < height; i += yGridInterval)
         {
             g2.drawLine(0, i, width, i);
             if (j == 0) { j++; continue;}
