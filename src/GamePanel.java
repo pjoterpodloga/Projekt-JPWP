@@ -27,7 +27,7 @@ public class GamePanel extends JPanel
     private src.Utilities.Timer timer;
     private Equation equation;
     private Graph graph;
-    private Ball[] ball;
+    private Ball ball;
     private Target target;
     private double points;
     private double totalPoints;
@@ -37,7 +37,7 @@ public class GamePanel extends JPanel
     private int width, height;
     private int xCenter, yCenter;
     private int xGridInterval, yGridInterval;
-    private int xMinBound, xMaxBound, yMinBound, yMaxBound;
+    private double xMinBound, xMaxBound, yMinBound, yMaxBound;
     private final double plotScale = 1.0;
     private final Vector3D gravity = new Vector3D(0, -9.81, 0);
     private boolean running = false;
@@ -61,38 +61,53 @@ public class GamePanel extends JPanel
         this.setLayout(null);
         this.setOpaque(false);
     }
+    private void randomLevel()
+    {
+
+        int equationType = (int) Math.floor(Math.random()*(6.9 - 1.) + 1.);
+
+        calculateEquation(EquType.valueOf( equationType));
+
+        double xRange = 0.8 * xMaxBound - 0.8 * xMinBound;
+        double yMean = (yMaxBound + yMinBound) / 2.;
+        double yRange = 0.8 * yMaxBound - yMean;
+
+        double ballR = 0.1;
+        double ballX = Math.random()*(xRange) + 0.8 * yMinBound;
+        double ballY = Math.random()*(yRange) + yMean;
+
+        ball = new Ball(ballR);
+        ball.setResetPos(new Vector3D(ballX, ballY, 0));
+        ball.setAcceleration(gravity);
+        ball.reset();
+
+        yRange = (yMean - 0.8*yMinBound);
+
+        double targetR = Math.random() * (0.6 - 0.3) + 0.3;
+        double targetX = Math.random()*(xRange) + 0.8 * yMinBound;
+        double targetY = Math.random()*(yRange) + 0.8 * yMinBound;
+
+        target = new Target(targetR, new Vector3D(targetX,targetY,0));
+    }
     private void initPeripherals()
     {
 
-        graph = new Graph(-0.1, -0.1, 0.1, 0.1);
-
-        this.width = plotWidth;
-        this.height = plotHeight;
-        this.xCenter = (int)(width * (0.5 + graph.getdx()));
-        this.yCenter = (int)(height * (1. - (0.5 + graph.getdy())));
-        this.xGridInterval = (int)(width * graph.getxGridInterval());
-        this.yGridInterval = (int)(height * graph.getyGridInterval());
-        this.xMinBound = (int)((width * (-0.5 - graph.getdx())) / xGridInterval);
-        this.xMaxBound = (width/xGridInterval + xMinBound);
-        this.yMinBound = (int)((height * (-0.5 - graph.getdy())) / yGridInterval);
-        this.yMaxBound = (height/yGridInterval + yMinBound);
-
-        equation = Equation.createEquation(EquType.POLY2);
-        equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
-        equation.optimizeSize();
-
         timer = new Timer((int)maxFPS * 4);
 
-        ball = new Ball[1];
-        ball[0] = new Ball(0.1);
-        ball[0].setResetPos(new Vector3D(4, 4, 0));
-        ball[0].setAcceleration(gravity);
-        ball[0].reset();
+        graph = new Graph(-0.1, -0.1, 0.1, 0.1);
+
+        calculateDimensions(graph);
+        calculateEquation(EquType.POLY2);
+
+        ball = new Ball(0.1);
+        ball.setResetPos(new Vector3D(4, 4, 0));
+        ball.setAcceleration(gravity);
+        ball.reset();
+
+        target = new Target(0.5, new Vector3D(-2.1,-2.4,0));
 
         points = 0;
         totalPoints = 0;
-
-        target = new Target(0.5, new Vector3D(0.5,1,0));
 
         URL startImgURL = getClass().getResource("../res/StartPrzycisk.png");
         URL stopImgURL = getClass().getResource("../res/StopPrzycisk.png");
@@ -227,12 +242,7 @@ public class GamePanel extends JPanel
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                if (currentGameState != GameState.WAITING)
-                    return;
-
-                equation = Equation.createEquation(EquType.POLY1);
-                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
-                equation.optimizeSize();
+                calculateEquation(EquType.POLY1);
             }
         });
 
@@ -247,12 +257,7 @@ public class GamePanel extends JPanel
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                if (currentGameState != GameState.WAITING)
-                    return;
-
-                equation = Equation.createEquation(EquType.POLY2);
-                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
-                equation.optimizeSize();
+                calculateEquation(EquType.POLY2);
             }
         });
 
@@ -267,12 +272,7 @@ public class GamePanel extends JPanel
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                if (currentGameState != GameState.WAITING)
-                    return;
-
-                equation = Equation.createEquation(EquType.POLY3);
-                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
-                equation.optimizeSize();
+                calculateEquation(EquType.POLY3);
             }
         });
 
@@ -287,12 +287,7 @@ public class GamePanel extends JPanel
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                if (currentGameState != GameState.WAITING)
-                    return;
-
-                equation = Equation.createEquation(EquType.POLY4);
-                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) / xGridInterval);
-                equation.optimizeSize();
+                calculateEquation(EquType.POLY4);
             }
         });
 
@@ -307,12 +302,7 @@ public class GamePanel extends JPanel
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                if (currentGameState != GameState.WAITING)
-                    return;
-
-                equation = Equation.createEquation(EquType.SIN);
-                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) / xGridInterval);
-                equation.optimizeSize();
+                calculateEquation(EquType.SIN);
             }
         });
 
@@ -328,9 +318,7 @@ public class GamePanel extends JPanel
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                equation = Equation.createEquation(EquType.EXP);
-                equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) / xGridInterval);
-                equation.optimizeSize();
+                calculateEquation(EquType.EXP);
             }
         });
 
@@ -349,6 +337,31 @@ public class GamePanel extends JPanel
         this.add(sinButton);
         this.add(expButton);
     }
+
+    private void calculateEquation(EquType equType)
+    {
+        if (currentGameState != GameState.WAITING)
+            return;
+
+        equation = Equation.createEquation(equType);
+        equation.setInterval((double) -xCenter / xGridInterval, (double) (width - xCenter) /xGridInterval);
+        equation.optimizeSize();
+    }
+
+    private void calculateDimensions(Graph g)
+    {
+        this.width = plotWidth;
+        this.height = plotHeight;
+        this.xCenter = (int)(width * (0.5 + g.getdx()));
+        this.yCenter = (int)(height * (1. - (0.5 + g.getdy())));
+        this.xGridInterval = (int)(width * g.getxGridInterval());
+        this.yGridInterval = (int)(height * g.getyGridInterval());
+        this.xMinBound = ((width * (-0.5 - g.getdx())) / xGridInterval);
+        this.xMaxBound = (width/xGridInterval + xMinBound);
+        this.yMinBound = ((height * (-0.5 - g.getdy())) / yGridInterval);
+        this.yMaxBound = (height/yGridInterval + yMinBound);
+    }
+
     public void run()
     {
         running = true;
@@ -408,7 +421,7 @@ public class GamePanel extends JPanel
                 points = maxPoints;
                 pointsTime = 0;
 
-                ball[0].reset();
+                ball.reset();
 
                 collisionDetected = false;
                 outOfBoundsDetected = false;
@@ -474,16 +487,18 @@ public class GamePanel extends JPanel
             {
                 currentGameState = GameState.WAITING;
                 totalPoints += points;
+
+                randomLevel();
             }
 
             if (totalElapsedTime_ms >= updateNewInterval)
             {
                 updateNewInterval = totalElapsedTime_ms + updateInterval;
-                update(lastUpdate * timeScale);
+                update(lastUpdate * timeScale / 4);
 
                 pointsTime += lastUpdate;
 
-                double bouncePointScale = Math.max(0, ball[0].getHitCount() - pointsDecayBounce) * 100;
+                double bouncePointScale = Math.max(0, ball.getHitCount() - pointsDecayBounce) * 100;
 
                 if (currentGameState == GameState.RUNNING)
                 {
@@ -535,28 +550,23 @@ public class GamePanel extends JPanel
             return;
         }
 
-        for (Ball b : ball) {
+        stuckDetected = ball.calculateDisplacement(dt);
+        winConditionDetected = checkWinCondition(ball);
+        outOfBoundsDetected = checkBounds(ball);
+        collisionDetected = checkCollision(ball);
 
-            stuckDetected = b.calculateDisplacement(dt);
-            winConditionDetected = checkWinCondition(b);
-            outOfBoundsDetected = checkBounds(b);
-            collisionDetected = checkCollision(b);
+        if (winConditionDetected)
+        {
+            currentGameState = GameState.WON;
 
-            if (winConditionDetected)
-            {
-                currentGameState = GameState.WON;
+            System.out.println("Ball achieved target.\n");
 
-                System.out.println("Ball achieved target.\n");
+        }
+        else if ((stuckDetected || outOfBoundsDetected) && currentGameState != GameState.WON)
+        {
+            currentGameState = GameState.FAILED;
 
-            }
-            else if ((stuckDetected || outOfBoundsDetected) && currentGameState != GameState.WON)
-            {
-                currentGameState = GameState.FAILED;
-
-                System.out.println("Ball is stuck or out of bounds.\n");
-
-                break;
-            }
+            System.out.println("Ball is stuck or out of bounds.\n");
         }
     }
 
@@ -570,18 +580,18 @@ public class GamePanel extends JPanel
 
     private boolean checkBounds(Ball b)
     {
-        double xBall = b.getxPos(), yBall = b.getyPos();
+        double xBall = b.getxPos(), yBall = b.getyPos(), rBall = b.getRadius();
 
-        return xBall < xMinBound || xBall > xMaxBound || yBall < yMinBound || yBall > yMaxBound;
+        return (xBall + rBall < xMinBound) || (xBall - rBall > xMaxBound) || (yBall + rBall < yMinBound) || (yBall - rBall > yMaxBound);
     }
 
     private boolean checkCollision(Ball b)
     {
 
         double xBall = b.getxPos(), yBall = b.getyPos();
-        double dsq = -1, minDsq = -1, angle = -1, maxAngle = -1;
+        double dsq = -1, minDsq = -1;
 
-        int nearestEquIdx = -1, angleEquIdx = -1;
+        int nearestEquIdx = -1;
 
         Vector3D vn = new Vector3D(0), ballVelocity = b.getVelocityVector();
 
@@ -592,13 +602,8 @@ public class GamePanel extends JPanel
 
             dsq = Vector3D.dot(vn, vn);
 
-            angle = Math.abs(Vector3D.dot(ballVelocity, vn));
-
             if (equ_it == 1)
             {
-                maxAngle = angle;
-                angleEquIdx = equ_it;
-
                 minDsq = dsq;
                 nearestEquIdx = equ_it;
             }
@@ -610,66 +615,38 @@ public class GamePanel extends JPanel
             }
         }
 
-        int hrange = 250;
-        int equ_it_min = Math.max(1, nearestEquIdx - hrange);
-        int equ_it_max = Math.min(equation.getLength(), nearestEquIdx + hrange);
-
-        Vector3D tmpVN = new Vector3D(0);
-
-        for (int equ_it = equ_it_min; equ_it < equ_it_max; equ_it += 1)
-        {
-            vn.x = equation.getX(equ_it) - xBall;
-            vn.y = equation.getY(equ_it) - yBall;
-
-            angle = Vector3D.dot(ballVelocity, vn);
-
-            if (equ_it == equ_it_min)
-            {
-                maxAngle = angle;
-                angleEquIdx = equ_it;
-
-                tmpVN.x = vn.x;
-                tmpVN.y = vn.y;
-            }
-
-            if (angle > maxAngle)
-            {
-                maxAngle = angle;
-                angleEquIdx = equ_it;
-
-                tmpVN.x = vn.x;
-                tmpVN.y = vn.y;
-            }
-        }
-
         if (Math.sqrt(minDsq) <= b.getRadius())
         {
-            maxAngle = maxAngle / (Vector3D.norm(tmpVN)*Vector3D.norm(ballVelocity));
-
-            int idx = angleEquIdx;
-
-            if (maxAngle < 0.97)
-            {
-                idx = nearestEquIdx;
-            }
+            int idx = nearestEquIdx;
 
             double dx = equation.getX(idx + 1) - equation.getX(idx - 1);
             double dy = equation.getY(idx + 1) - equation.getY(idx - 1);
 
             Vector3D a = Vector3D.normalized(new Vector3D(dx, dy, 0));
 
-            Vector3D n = Vector3D.cross(a, new Vector3D(0, 0, -1));
-            Vector3D d = Vector3D.normalized(new Vector3D(equation.getX(idx) - xBall, equation.getY(idx) - yBall, 0));
+            Vector3D n = Vector3D.cross(new Vector3D(0, 0, 1), a);
+            Vector3D d = Vector3D.normalized(b.getVelocityVector());
+
+            lastBounceN.x = a.x;
+            lastBounceN.y = a.y;
+
+            lastBouncePos.x = xBall;
+            lastBouncePos.y = yBall;
 
             b.calculateBounce(n, d);
 
+            System.out.println("n vector X: " + n.x + " | Y: " + n.y);
+            System.out.println("d vector X: " + d.x + " | Y: " + d.y);
+            System.out.println("a vector X: " + a.x + " | Y: " + a.y);
             System.out.println("Nearest Equation Index: " + nearestEquIdx + " | Minimal Distance: " + Math.sqrt(minDsq));
-            System.out.println("Attack angle Index: " + angleEquIdx + " | Attack angle: " + maxAngle);
             System.out.println("VeloX: " + ballVelocity.x + " | VeloY: " + ballVelocity.y + "\n");
         }
 
         return b.isStuck();
     }
+
+    Vector3D lastBouncePos = new Vector3D(0);
+    Vector3D lastBounceN = new Vector3D(0);
 
     private final Color plotColor = new Color(187, 185, 157);
     private final Color mainGridColor = new Color(0, 0, 0);
@@ -748,8 +725,8 @@ public class GamePanel extends JPanel
         }
 
         double gridAvg = Math.sqrt(xGridInterval * yGridInterval);
-        int rBall = (int)(ball[0].getRadius() * gridAvg);
-        int xBall = (int)(ball[0].getxPos() * xGridInterval + xCenter), yBall = (int)(yCenter - ball[0].getyPos() * yGridInterval);
+        int rBall = (int)(ball.getRadius() * gridAvg);
+        int xBall = (int)(ball.getxPos() * xGridInterval + xCenter), yBall = (int)(yCenter - ball.getyPos() * yGridInterval);
 
         g2.setColor(ballColor);
 
@@ -770,13 +747,23 @@ public class GamePanel extends JPanel
         g2.drawOval(xTarget - rTarget, yTarget - rTarget, 2 * rTarget, 2 * rTarget);
 
         g2.setFont(scoreFont);
-        g2.drawString("Score: " + (int)points, 1010, 630);
-        g2.drawString("Total score: " + (int)totalPoints, 1010, 660);
+        g2.drawString("Punkty: " + (int)points, 1010, 630);
+        g2.drawString("Suma punktów: " + (int)totalPoints, 1010, 660);
 
-        g2.setColor(debugColor);
-        g2.setFont(debugFont);
-        g2.drawString("FPS: " + framesPerSecond, 0, 10);
-        g2.drawLine(xBall, yBall, xBall + (int)(ball[0].getVelocityVector().x * gridAvg * 0.1), yBall - (int)(ball[0].getVelocityVector().y * gridAvg * 0.1));
+        if(true)
+        {
+            g2.setColor(debugColor);
+            g2.setFont(debugFont);
+            g2.drawString("FPS: " + framesPerSecond, 0, 10);
+            g2.drawLine(xBall, yBall, xBall + (int) (ball.getVelocityVector().x * gridAvg * 0.1), yBall - (int) (ball.getVelocityVector().y * gridAvg * 0.1));
+
+            int rBounce = (int) (ball.getRadius() * gridAvg);
+            int xBounce = (int) (lastBouncePos.x * xGridInterval + xCenter);
+            int yBounce = (int) (yCenter - lastBouncePos.y * yGridInterval);
+
+            g2.fillOval(xBounce - rBounce, yBounce - rBounce, 2 * rBounce, 2 * rBounce);
+            g2.drawLine(xBounce, yBounce, xBounce + (int) (50. * lastBounceN.x), yBounce - (int) (50. * lastBounceN.y));
+        }
 
         if (currentGameState == GameState.WAITING)
         {

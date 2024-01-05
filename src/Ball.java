@@ -65,7 +65,9 @@ public class Ball {
             Vector3D vn = new Vector3D(n);
             Vector3D.scale(vn, 2 * Vector3D.dot(n, d));
             Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
-            velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.85);
+            velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.9);
+
+            System.out.println("Ball's Velocity Vector X: " + velocity.x + " | Y: " + velocity.y + "\n");
 
             hit();
         }

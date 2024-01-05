@@ -11,7 +11,7 @@ public class Poly1Equ extends Equation{
         this.x = new double[this.length];
         this.y = new double[this.length];
 
-        this.A = 0.2; // A coefficient
+        this.A = 1; // A coefficient
         this.B = 1.; // Y Offset
 
         this.epsilon = 100;
