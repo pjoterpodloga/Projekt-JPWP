@@ -5,5 +5,6 @@ public enum GameState
     WAITING,
     RUNNING,
     FAILED,
-    WON
+    WON,
+    MENU
 }

@@ -14,6 +14,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.io.IOException;
 import java.net.URL;
 
@@ -772,6 +774,11 @@ public class GamePanel extends JPanel
         else
         {
             g2.drawImage(StopIcon, 925, 25, 50, 50, null);
+        }
+
+        if (currentGameState == GameState.MENU)
+        {
+
         }
 
         g.dispose();
