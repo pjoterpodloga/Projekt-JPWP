@@ -1,6 +1,7 @@
 package src.Equations;
 
 public abstract class Equation {
+    // Creating equation based on type
     public static Equation createEquation(EquType type) {
 
         Equation returnEqu = switch (type) {
@@ -23,7 +24,7 @@ public abstract class Equation {
     protected Equation() { }
 
     public void calculateValues() { }
-
+    // Resizing equation based on type and parameters
     final public void resize(int l)
     {
         this.length = l;
@@ -31,13 +32,14 @@ public abstract class Equation {
         this.y = new double[l];
         update = true;
     }
-
+    // X calculating interval
     final public void setInterval(double x1, double x2) {
         this.start = x1;
         this.stop = x2;
 
         update = true;
     }
+    // Optimizing size
     public void optimizeSize() { }
 
     protected EquType type;
@@ -48,7 +50,7 @@ public abstract class Equation {
     protected int xBoxGrid, yBoxGrid;
     protected boolean update = true;
 
-    //// Getters ////
+    // Getters //
     final public EquType getType() {
         return type;
     }
@@ -108,7 +110,7 @@ public abstract class Equation {
         return this.length;
     }
 
-    //// Setters ////
+    // Setters //
     public void setA(double A)
     {
         this.A = A;

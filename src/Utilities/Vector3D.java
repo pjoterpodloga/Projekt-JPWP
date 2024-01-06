@@ -27,6 +27,7 @@ public class Vector3D {
         this.z = v.z;
     }
 
+    // Operations on vectors
     static public double dot(Vector3D v1, Vector3D v2)
     {
         return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;

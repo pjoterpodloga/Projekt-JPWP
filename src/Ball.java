@@ -14,9 +14,10 @@ public class Ball {
     private double hitCountdown;
     private boolean stuck;
 
+    // Ball constructors
     public Ball()
     {
-        radius = 10;
+        radius = 0.1;
         position = new Vector3D(0);
         velocity = new Vector3D(0);
         acceleration = new Vector3D(0);
@@ -36,6 +37,7 @@ public class Ball {
         hitCount = 0;
         stuck = false;
     }
+    // Calculating displacement based on delta time and applied acceleration
     public boolean calculateDisplacement(double dt)
     {
         hitCountdown -= dt;
@@ -53,13 +55,16 @@ public class Ball {
 
         return stuck;
     }
+    // Calculating bounce
     public boolean calculateBounce(Vector3D n, Vector3D d)
     {
+        // Velocity too low
         if (Vector3D.norm(velocity) <= 0.05)
         {
             stuck = true;
         }
 
+        // Bounce too early
         if (!stuck && hitCountdown <= 0)
         {
             Vector3D vn = new Vector3D(n);
@@ -67,6 +72,7 @@ public class Ball {
             Vector3D b = Vector3D.normalized(Vector3D.sub(d, vn));
             velocity = Vector3D.scale(b, Vector3D.norm(velocity) * 0.9);
 
+            // Debug purposes
             System.out.println("Ball's Velocity Vector X: " + velocity.x + " | Y: " + velocity.y + "\n");
 
             hit();
@@ -74,12 +80,13 @@ public class Ball {
 
         return stuck;
     }
+    // Ball hit function
     public void hit()
     {
         hitCount++;
         hitCountdown = 0.02;
     }
-
+    // Resetting ball state to default
     public void reset()
     {
         position.x = resetPos.x;
@@ -94,7 +101,7 @@ public class Ball {
         stuck = false;
     }
 
-    //// Setters ////
+    // Setters //
     public void setRadius(double r)
     {
         radius = r;
@@ -116,7 +123,7 @@ public class Ball {
         acceleration = a;
     }
 
-    //// Getters ////
+    // Getters //
     public double getRadius()
     {
         return radius;

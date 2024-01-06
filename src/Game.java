@@ -4,7 +4,7 @@ import javax.swing.*;
 
 public class Game extends JFrame{
 
-    //// Window constants ////
+    // Window constants //
     public static final int WIDTH = 1280;   // Width of window
     public static final int HEIGHT = 1024;  // Height of window
     public static final String NAME = "Szalone wykresy TEST"; // Title of window
@@ -13,12 +13,12 @@ public class Game extends JFrame{
     protected static int lastID = 1; // Last ID of instance
     private final int ID;  // ID of class instance
 
-    //// Private fields ////
+    // Private fields //
     private GamePanel gamePanel;
 
-    //// Public fields ////
+    // Public fields //
 
-    //// Singleton of Game class ////
+    // Singleton of Game class //
     private Game()
     {
         ID = lastID;
@@ -36,6 +36,7 @@ public class Game extends JFrame{
 
         return Instance;
     }
+    // Initializing window
     private void initWindow()
     {
         this.setSize(WIDTH, HEIGHT);
@@ -47,12 +48,11 @@ public class Game extends JFrame{
 
         this.setVisible(true);
     }
+    // Run method
     public void run()
     {
         gamePanel = new GamePanel();
-
         this.add(gamePanel);
-
         gamePanel.run();
     }
 

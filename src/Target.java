@@ -7,6 +7,7 @@ public class Target
     private double radius;
     private Vector3D position;
 
+    // Constructors
     public Target()
     {
         radius = 0.5;
@@ -18,6 +19,7 @@ public class Target
         position = new Vector3D(p);
     }
 
+    // Getters //
     public double getPosX()
     {
         return position.x;
@@ -31,6 +33,7 @@ public class Target
         return radius;
     }
 
+    // Setters //
     public void setPosX(double x)
     {
         position.x = x;

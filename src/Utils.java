@@ -1,6 +1,7 @@
 package src;
 
 public class Utils {
+    // Calculating linear spacing from start to stop
     static public double[] linspace(double start, double stop, int n)
     {
         double[] values = new double[n];

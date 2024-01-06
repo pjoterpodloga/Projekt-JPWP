@@ -18,11 +18,11 @@ public enum EquType {
 
     private int value;
     private static Map map = new HashMap<>();
-    private EquType(int value)
+    // Mapping types and values
+    EquType(int value)
     {
         this.value = value;
     }
-
     static
     {
         for(EquType equType : EquType.values())
@@ -30,7 +30,6 @@ public enum EquType {
             map.put(equType.value, equType);
         }
     }
-
     public static EquType valueOf(int equ)
     {
         return (EquType) map.get(equ);
